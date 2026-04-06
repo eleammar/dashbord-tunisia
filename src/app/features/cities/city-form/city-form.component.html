@@ -1,0 +1,756 @@
+<div class="max-w-6xl mx-auto p-6">
+
+  <!-- LOADING -->
+  <div *ngIf="loading()" class="space-y-6">
+    <div class="h-12 bg-slate-200 rounded-lg animate-pulse"></div>
+    <div class="grid grid-cols-3 gap-4">
+      <div *ngFor="let _ of [1,2,3]" class="h-64 bg-slate-200 rounded-lg animate-pulse"></div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!loading()">
+
+    <!-- ═══════════════════════════════ HEADER ═══════════════════════════ -->
+    <div class="flex items-center justify-between gap-4 mb-8">
+      <div class="flex items-center gap-3">
+        <button (click)="goBack()"
+                class="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200
+                       text-slate-400 hover:text-slate-800 transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <div>
+          <h1 class="text-3xl font-bold text-slate-800">
+            {{ isEdit() ? '✏️ Edit City' : '➕ Create New City' }}
+          </h1>
+          <p class="text-sm text-slate-500 mt-1">
+            {{ isEdit() ? 'Update city details and content' : 'Create a complete city profile' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button (click)="goBack()"
+                class="px-4 py-2.5 border border-slate-200 text-slate-600
+                       rounded-lg font-medium hover:bg-slate-50 transition-all">
+          Discard
+        </button>
+
+        <button (click)="onSubmit()"
+                [disabled]="saving() || !isValid()"
+                class="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg
+                       font-semibold disabled:opacity-50 disabled:cursor-not-allowed
+                       transition-all flex items-center gap-2">
+          <svg *ngIf="saving()" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          {{ saving() ? 'Saving...' : (isEdit() ? '💾 Update City' : '✨ Create City') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ TABS ═══════════════════════════ -->
+    <div class="flex gap-1 border-b border-slate-200 mb-8 overflow-x-auto pb-0">
+      <button *ngFor="let tab of tabs"
+              (click)="activeTab.set(tab.key)"
+              class="flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap
+                     border-b-2 -mb-px transition-all"
+              [class]="activeTab() === tab.key
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-slate-600 hover:text-slate-800'">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+          <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="tab.icon"/>
+        </svg>
+        {{ tab.label }}
+        <span *ngIf="tab.count && tab.count() > 0" 
+              class="ml-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-xs font-bold">
+          {{ tab.count() }}
+        </span>
+      </button>
+    </div>
+
+    <!-- ═══════════════════════════════ TAB: GENERAL ═══════════════════════════ -->
+    <div *ngIf="activeTab() === 'general'" class="space-y-6 animate-fade-in">
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+        <h3 class="text-lg font-bold text-slate-800">Basic Information</h3>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">City Name *</label>
+            <input type="text" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="e.g. Nabeul"
+                   [ngModel]="name()"
+                   (ngModelChange)="name.set($event)"/>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Region *</label>
+            <select class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    [ngModel]="region()"
+                    (ngModelChange)="region.set($event)">
+              <option *ngFor="let r of regions" [value]="r">{{ r }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Map Latitude</label>
+            <input type="number" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   step="0.0001"
+                   [ngModel]="mapCenterLat()"
+                   (ngModelChange)="mapCenterLat.set($event)"/>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Map Longitude</label>
+            <input type="number" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   step="0.0001"
+                   [ngModel]="mapCenterLng()"
+                   (ngModelChange)="mapCenterLng.set($event)"/>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Map Zoom</label>
+            <input type="number" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   min="1" max="20"
+                   [ngModel]="mapZoom()"
+                   (ngModelChange)="mapZoom.set($event)"/>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Map Source URL</label>
+          <input type="text" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 placeholder="https://..."
+                 [ngModel]="mapSrc()"
+                 (ngModelChange)="mapSrc.set($event)"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ TAB: HERO ═══════════════════════════ -->
+    <div *ngIf="activeTab() === 'hero'" class="space-y-6 animate-fade-in">
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Hero Section</h3>
+
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Background Image URL</label>
+          <input type="text" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 placeholder="https://..."
+                 [ngModel]="heroBg()"
+                 (ngModelChange)="heroBg.set($event)"/>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Description</label>
+          <textarea class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows="3"
+                    placeholder="Hero description..."
+                    [ngModel]="heroDesc()"
+                    (ngModelChange)="heroDesc.set($event)"></textarea>
+        </div>
+
+        <!-- Hero Cards -->
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <label class="text-sm font-semibold text-slate-700">Hero Cards ({{ heroCards().length }})</label>
+            <button (click)="addHeroCard()"
+                    class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg">
+              + Add Card
+            </button>
+          </div>
+
+          <div *ngFor="let card of heroCards(); let i = index" class="bg-slate-50 p-4 rounded-lg mb-3 space-y-2 border border-slate-200">
+            <div class="grid grid-cols-2 gap-2">
+              <input type="text" placeholder="Image URL"
+                     [ngModel]="card.img"
+                     (ngModelChange)="updateHeroCardImg(i, $event)"
+                     class="px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+              <input type="text" placeholder="Card Name"
+                     [ngModel]="card.name"
+                     (ngModelChange)="updateHeroCardName(i, $event)"
+                     class="px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            </div>
+            <button (click)="removeHeroCard(i)" class="text-xs text-red-600 hover:text-red-700 font-medium">
+              ✕ Remove
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ TAB: ABOUT ═══════════════════════════ -->
+    <div *ngIf="activeTab() === 'about'" class="space-y-6 animate-fade-in">
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">About Section</h3>
+
+        <input type="text" placeholder="Label" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               [ngModel]="aboutLabel()"
+               (ngModelChange)="aboutLabel.set($event)"/>
+
+        <input type="text" placeholder="Headline" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               [ngModel]="aboutHeadline()"
+               (ngModelChange)="aboutHeadline.set($event)"/>
+
+        <textarea placeholder="Body text" rows="4" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  [ngModel]="aboutBody()"
+                  (ngModelChange)="aboutBody.set($event)"></textarea>
+
+        <input type="text" placeholder="Image URL" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               [ngModel]="aboutImg()"
+               (ngModelChange)="aboutImg.set($event)"/>
+
+        <!-- Stats -->
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <label class="text-sm font-semibold text-slate-700">Statistics ({{ aboutStats().length }})</label>
+            <button (click)="addAboutStat()"
+                    class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg">
+              + Add Stat
+            </button>
+          </div>
+
+          <div *ngFor="let stat of aboutStats(); let i = index" class="bg-slate-50 p-3 rounded mb-2 space-y-2 border border-slate-200">
+            <div class="grid grid-cols-3 gap-2">
+              <input type="text" placeholder="Icon" class="px-2 py-1.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     [ngModel]="stat.icon"
+                     (ngModelChange)="updateAboutStatIcon(i, $event)"/>
+              <input type="text" placeholder="Number" class="px-2 py-1.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     [ngModel]="stat.num"
+                     (ngModelChange)="updateAboutStatNum(i, $event)"/>
+              <input type="text" placeholder="Label" class="px-2 py-1.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     [ngModel]="stat.label"
+                     (ngModelChange)="updateAboutStatLabel(i, $event)"/>
+            </div>
+            <button (click)="removeAboutStat(i)" class="text-xs text-red-600 font-medium">✕ Remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ TAB: CULTURE (✅ GLOBAL DATA WITH SEARCH) ═══════════════════════════ -->
+    <div *ngIf="activeTab() === 'culture'" class="space-y-6 animate-fade-in">
+      <div class="bg-white border border-slate-200 rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-bold text-slate-800">
+            🎭 Culture Items ({{ selectedCultureIds().length }}/{{ allCultureItems().length }})
+          </h3>
+          <div class="flex gap-2">
+            <button (click)="selectAllItems(selectedCultureIds, allCultureItems())"
+                    class="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-600 text-xs rounded-lg font-medium">
+              Select All
+            </button>
+            <button (click)="clearAllItems(selectedCultureIds)"
+                    class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs rounded-lg font-medium">
+              Clear All
+            </button>
+          </div>
+        </div>
+
+        <!-- Search bar -->
+        <div class="mb-4">
+          <input type="text" placeholder="🔍 Search culture items..."
+                 class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 [ngModel]="cultureSearch()"
+                 (ngModelChange)="cultureSearch.set($event)"/>
+        </div>
+
+        <!-- Items list -->
+        <div class="space-y-2 max-h-96 overflow-y-auto">
+          <div *ngFor="let item of filteredCulture()"
+               class="flex items-center gap-3 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer"
+               (click)="toggleItemSelection(selectedCultureIds, item.id)">
+            <input type="checkbox"
+                   [checked]="isItemSelected(selectedCultureIds, item.id)"
+                   class="w-4 h-4 rounded cursor-pointer pointer-events-none"/>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-slate-800 truncate">{{ item.title }}</p>
+              <p class="text-xs text-slate-500">{{ item.label }} • ⭐ {{ item.rating }}</p>
+            </div>
+            <img *ngIf="item.img" [src]="item.img" [alt]="item.title" 
+                 class="w-10 h-10 rounded object-cover flex-shrink-0"/>
+          </div>
+        </div>
+
+        <div *ngIf="filteredCulture().length === 0" class="text-center py-8 text-slate-500">
+          ❌ No culture items found
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ TAB: EVENTS (✅ GLOBAL DATA WITH SEARCH) ═══════════════════════════ -->
+    <div *ngIf="activeTab() === 'events'" class="space-y-6 animate-fade-in">
+      <div class="bg-white border border-slate-200 rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-bold text-slate-800">
+            📅 Events ({{ selectedEventIds().length }}/{{ allEvents().length }})
+          </h3>
+          <div class="flex gap-2">
+            <button (click)="selectAllItems(selectedEventIds, allEvents())"
+                    class="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-600 text-xs rounded-lg font-medium">
+              Select All
+            </button>
+            <button (click)="clearAllItems(selectedEventIds)"
+                    class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs rounded-lg font-medium">
+              Clear All
+            </button>
+          </div>
+        </div>
+
+        <!-- Search bar -->
+        <div class="mb-4">
+          <input type="text" placeholder="🔍 Search events..."
+                 class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 [ngModel]="eventSearch()"
+                 (ngModelChange)="eventSearch.set($event)"/>
+        </div>
+
+        <!-- Items list -->
+        <div class="space-y-2 max-h-96 overflow-y-auto">
+          <div *ngFor="let item of filteredEvents()"
+               class="flex items-center gap-3 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer"
+               (click)="toggleItemSelection(selectedEventIds, item.id)">
+            <input type="checkbox"
+                   [checked]="isItemSelected(selectedEventIds, item.id)"
+                   class="w-4 h-4 rounded cursor-pointer pointer-events-none"/>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-slate-800 truncate">{{ item.name }}</p>
+              <p class="text-xs text-slate-500">📅 {{ item.date }}</p>
+            </div>
+            <img *ngIf="item.img" [src]="item.img" [alt]="item.name" 
+                 class="w-10 h-10 rounded object-cover flex-shrink-0"/>
+          </div>
+        </div>
+
+        <div *ngIf="filteredEvents().length === 0" class="text-center py-8 text-slate-500">
+          ❌ No events found
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════��═══════ TAB: ACTIVITIES (✅ GLOBAL DATA WITH SEARCH) ═══════════════════════════ -->
+    <div *ngIf="activeTab() === 'activities'" class="space-y-6 animate-fade-in">
+      <div class="bg-white border border-slate-200 rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-bold text-slate-800">
+            ⚡ Activities ({{ selectedActivityIds().length }}/{{ allActivities().length }})
+          </h3>
+          <div class="flex gap-2">
+            <button (click)="selectAllItems(selectedActivityIds, allActivities())"
+                    class="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-600 text-xs rounded-lg font-medium">
+              Select All
+            </button>
+            <button (click)="clearAllItems(selectedActivityIds)"
+                    class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs rounded-lg font-medium">
+              Clear All
+            </button>
+          </div>
+        </div>
+
+        <!-- Search bar -->
+        <div class="mb-4">
+          <input type="text" placeholder="🔍 Search activities..."
+                 class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 [ngModel]="activitySearch()"
+                 (ngModelChange)="activitySearch.set($event)"/>
+        </div>
+
+        <!-- Items list -->
+        <div class="space-y-2 max-h-96 overflow-y-auto">
+          <div *ngFor="let item of filteredActivities()"
+               class="flex items-center gap-3 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer"
+               (click)="toggleItemSelection(selectedActivityIds, item.id)">
+            <input type="checkbox"
+                   [checked]="isItemSelected(selectedActivityIds, item.id)"
+                   class="w-4 h-4 rounded cursor-pointer pointer-events-none"/>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-slate-800 truncate">{{ item.name }}</p>
+              <p class="text-xs text-slate-500">{{ item.type }} • ⭐ {{ item.r }}</p>
+            </div>
+            <img *ngIf="item.img" [src]="item.img" [alt]="item.name" 
+                 class="w-10 h-10 rounded object-cover flex-shrink-0"/>
+          </div>
+        </div>
+
+        <div *ngIf="filteredActivities().length === 0" class="text-center py-8 text-slate-500">
+          ❌ No activities found
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ TAB: FOOD (✅ GLOBAL DATA WITH SEARCH) ═══════════════════════════ -->
+    <div *ngIf="activeTab() === 'food'" class="space-y-6 animate-fade-in">
+      <div class="bg-white border border-slate-200 rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-bold text-slate-800">
+            🍽️ Food Items ({{ selectedFoodIds().length }}/{{ allFood().length }})
+          </h3>
+          <div class="flex gap-2">
+            <button (click)="selectAllItems(selectedFoodIds, allFood())"
+                    class="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-600 text-xs rounded-lg font-medium">
+              Select All
+            </button>
+            <button (click)="clearAllItems(selectedFoodIds)"
+                    class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs rounded-lg font-medium">
+              Clear All
+            </button>
+          </div>
+        </div>
+
+        <!-- Search bar -->
+        <div class="mb-4">
+          <input type="text" placeholder="🔍 Search food items..."
+                 class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 [ngModel]="foodSearch()"
+                 (ngModelChange)="foodSearch.set($event)"/>
+        </div>
+
+        <!-- Items list -->
+        <div class="space-y-2 max-h-96 overflow-y-auto">
+          <div *ngFor="let item of filteredFood()"
+               class="flex items-center gap-3 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer"
+               (click)="toggleItemSelection(selectedFoodIds, item.id)">
+            <input type="checkbox"
+                   [checked]="isItemSelected(selectedFoodIds, item.id)"
+                   class="w-4 h-4 rounded cursor-pointer pointer-events-none"/>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-slate-800 truncate">{{ item.name }}</p>
+              <p class="text-xs text-slate-500">{{ item.cat }} • {{ item.desc }}</p>
+            </div>
+            <img *ngIf="item.img" [src]="item.img" [alt]="item.name" 
+                 class="w-10 h-10 rounded object-cover flex-shrink-0"/>
+          </div>
+        </div>
+
+        <div *ngIf="filteredFood().length === 0" class="text-center py-8 text-slate-500">
+          ❌ No food items found
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ TAB: HOTELS (✅ GLOBAL DATA WITH SEARCH) ═══════════════════════════ -->
+    <div *ngIf="activeTab() === 'hotels'" class="space-y-6 animate-fade-in">
+      <div class="bg-white border border-slate-200 rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-bold text-slate-800">
+            🏨 Hotels ({{ selectedHotelIds().length }}/{{ allHotels().length }})
+          </h3>
+          <div class="flex gap-2">
+            <button (click)="selectAllItems(selectedHotelIds, allHotels())"
+                    class="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-600 text-xs rounded-lg font-medium">
+              Select All
+            </button>
+            <button (click)="clearAllItems(selectedHotelIds)"
+                    class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs rounded-lg font-medium">
+              Clear All
+            </button>
+          </div>
+        </div>
+
+        <!-- Search bar -->
+        <div class="mb-4">
+          <input type="text" placeholder="🔍 Search hotels..."
+                 class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 [ngModel]="hotelSearch()"
+                 (ngModelChange)="hotelSearch.set($event)"/>
+        </div>
+
+        <!-- Items list -->
+        <div class="space-y-2 max-h-96 overflow-y-auto">
+          <div *ngFor="let item of filteredHotels()"
+               class="flex items-center gap-3 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer"
+               (click)="toggleItemSelection(selectedHotelIds, item.id)">
+            <input type="checkbox"
+                   [checked]="isItemSelected(selectedHotelIds, item.id)"
+                   class="w-4 h-4 rounded cursor-pointer pointer-events-none"/>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-slate-800 truncate">{{ item.n }}</p>
+              <p class="text-xs text-slate-500">{{ item.dist }}km away • ⭐ {{ item.r }} • ${{ item.price }}/night</p>
+            </div>
+            <img *ngIf="item.img" [src]="item.img" [alt]="item.n" 
+                 class="w-10 h-10 rounded object-cover flex-shrink-0"/>
+          </div>
+        </div>
+
+        <div *ngIf="filteredHotels().length === 0" class="text-center py-8 text-slate-500">
+          ❌ No hotels found
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ TAB: DELEGATIONS (✅ GLOBAL DATA WITH SEARCH) ═══════════════════════════ -->
+    <div *ngIf="activeTab() === 'delegations'" class="space-y-6 animate-fade-in">
+      <div class="bg-white border border-slate-200 rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-bold text-slate-800">
+            📍 Delegations ({{ selectedDelegationIds().length }}/{{ allDelegations().length }})
+          </h3>
+          <div class="flex gap-2">
+            <button (click)="selectAllItems(selectedDelegationIds, allDelegations())"
+                    class="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-600 text-xs rounded-lg font-medium">
+              Select All
+            </button>
+            <button (click)="clearAllItems(selectedDelegationIds)"
+                    class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs rounded-lg font-medium">
+              Clear All
+            </button>
+          </div>
+        </div>
+
+        <!-- Search bar -->
+        <div class="mb-4">
+          <input type="text" placeholder="🔍 Search delegations..."
+                 class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 [ngModel]="delegationSearch()"
+                 (ngModelChange)="delegationSearch.set($event)"/>
+        </div>
+
+        <!-- Items list -->
+        <div class="space-y-2 max-h-96 overflow-y-auto">
+          <div *ngFor="let item of filteredDelegations()"
+               class="flex items-center gap-3 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer"
+               (click)="toggleItemSelection(selectedDelegationIds, item.id)">
+            <input type="checkbox"
+                   [checked]="isItemSelected(selectedDelegationIds, item.id)"
+                   class="w-4 h-4 rounded cursor-pointer pointer-events-none"/>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-slate-800 truncate">{{ item.name }}</p>
+              <p class="text-xs text-slate-500">Pop: {{ item.pop }} • Area: {{ item.area }}km² • {{ item.type }}</p>
+            </div>
+            <img *ngIf="item.img" [src]="item.img" [alt]="item.name" 
+                 class="w-10 h-10 rounded object-cover flex-shrink-0"/>
+          </div>
+        </div>
+
+        <div *ngIf="filteredDelegations().length === 0" class="text-center py-8 text-slate-500">
+          ❌ No delegations found
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ TAB: BANNER & CTA ═══════════════════════════ -->
+    <div *ngIf="activeTab() === 'banner'" class="space-y-6 animate-fade-in">
+      
+      <!-- Banner Section -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">🎨 Banner Section</h3>
+
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Banner Type</label>
+          <select class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  [ngModel]="bannerType()"
+                  (ngModelChange)="bannerType.set($event)">
+            <option value="static">Static Banner</option>
+            <option value="video">Video Banner</option>
+            <option value="carousel">Image Carousel</option>
+          </select>
+        </div>
+
+        <input type="text" placeholder="Banner Title" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               [ngModel]="bannerTitle()"
+               (ngModelChange)="bannerTitle.set($event)"/>
+
+        <input type="text" placeholder="Banner Subtitle" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               [ngModel]="bannerSubtitle()"
+               (ngModelChange)="bannerSubtitle.set($event)"/>
+
+        <input type="text" placeholder="CTA Label" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               [ngModel]="bannerCtaLabel()"
+               (ngModelChange)="bannerCtaLabel.set($event)"/>
+
+        <input type="text" placeholder="CTA URL" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               [ngModel]="bannerCtaUrl()"
+               (ngModelChange)="bannerCtaUrl.set($event)"/>
+
+        <div *ngIf="bannerType() === 'video'">
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Video URL</label>
+          <input type="text" placeholder="https://youtube.com/..." class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 [ngModel]="bannerVideoUrl()"
+                 (ngModelChange)="bannerVideoUrl.set($event)"/>
+        </div>
+
+        <!-- Banner Images for Carousel -->
+        <div *ngIf="bannerType() === 'carousel'">
+          <div class="flex items-center justify-between mb-4">
+            <label class="text-sm font-semibold text-slate-700">Banner Images ({{ bannerImages().length }})</label>
+            <button (click)="addBannerImage()"
+                    class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg">
+              + Add Image
+            </button>
+          </div>
+
+          <div *ngFor="let img of bannerImages(); let i = index" class="flex gap-2 mb-2">
+            <input type="text" placeholder="Image URL"
+                   [ngModel]="img"
+                   (ngModelChange)="updateBannerImage(i, $event)"
+                   class="flex-1 px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            <button (click)="removeBannerImage(i)" class="text-xs text-red-600 px-2 font-medium">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA Section -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">📢 Call To Action</h3>
+
+        <input type="text" placeholder="CTA Label" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               [ngModel]="ctaLabel()"
+               (ngModelChange)="ctaLabel.set($event)"/>
+
+        <input type="text" placeholder="CTA Title" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               [ngModel]="ctaTitle()"
+               (ngModelChange)="ctaTitle.set($event)"/>
+
+        <textarea placeholder="CTA Description" rows="3" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  [ngModel]="ctaDescription()"
+                  (ngModelChange)="ctaDescription.set($event)"></textarea>
+
+        <input type="text" placeholder="CTA Image URL" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               [ngModel]="ctaImage()"
+               (ngModelChange)="ctaImage.set($event)"/>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ TAB: NEARBY CITIES (✅ GLOBAL DATA WITH SEARCH) ═══════════════════════════ -->
+    <div *ngIf="activeTab() === 'nearby-cities'" class="space-y-6 animate-fade-in">
+      <div class="bg-white border border-slate-200 rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-bold text-slate-800">
+            🌍 Nearby Cities ({{ selectedNearbyCityIds().length }}/{{ filteredNearbyCities().length }})
+          </h3>
+          <div class="flex gap-2">
+            <button (click)="selectAllItems(selectedNearbyCityIds, filteredNearbyCities())"
+                    class="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-600 text-xs rounded-lg font-medium">
+              Select All
+            </button>
+            <button (click)="clearAllItems(selectedNearbyCityIds)"
+                    class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs rounded-lg font-medium">
+              Clear All
+            </button>
+          </div>
+        </div>
+
+        <!-- Info Alert -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <p class="text-sm text-blue-800">
+            <strong>💡 Tip:</strong> Select cities from the same region ({{ region() }}) to display as nearby cities
+          </p>
+        </div>
+
+        <!-- Search bar -->
+        <div class="mb-4">
+          <input type="text" placeholder="🔍 Search nearby cities..."
+                 class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 [ngModel]="nearbySearch()"
+                 (ngModelChange)="nearbySearch.set($event)"/>
+        </div>
+
+        <!-- Items list -->
+        <div class="space-y-2 max-h-96 overflow-y-auto">
+          <div *ngFor="let city of filteredNearbyCities()"
+               class="flex items-center gap-3 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer"
+               (click)="toggleItemSelection(selectedNearbyCityIds, city.id)">
+            <input type="checkbox"
+                   [checked]="isItemSelected(selectedNearbyCityIds, city.id)"
+                   class="w-4 h-4 rounded cursor-pointer pointer-events-none"/>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-slate-800 truncate">{{ city.name }}</p>
+              <p class="text-xs text-slate-500">{{ city.region }} • Hotels: {{ city.hotels?.length || 0 }} • Events: {{ city.events?.length || 0 }}</p>
+            </div>
+            <img *ngIf="city.hero?.bg" [src]="city.hero.bg" [alt]="city.name" 
+                 class="w-10 h-10 rounded object-cover flex-shrink-0"/>
+          </div>
+        </div>
+
+        <div *ngIf="filteredNearbyCities().length === 0" class="text-center py-8 text-slate-500">
+          <p *ngIf="allNearbyCities().length === 0">❌ No cities in this region</p>
+          <p *ngIf="allNearbyCities().length > 0">❌ No nearby cities found matching your search</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ TAB: PREVIEW (UPDATED) ═══════════════════════════ -->
+    <div *ngIf="activeTab() === 'preview'" class="space-y-6 animate-fade-in">
+      <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-8">
+        <h2 class="text-2xl font-bold text-blue-900 mb-6">📋 Form Summary</h2>
+
+        <!-- Basic Info -->
+        <div class="mb-8">
+          <h3 class="text-lg font-bold text-blue-900 mb-4">Basic Information</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-lg">
+              <p class="text-xs font-semibold text-slate-600">City Name</p>
+              <p class="text-lg font-bold text-slate-800">{{ name() || '—' }}</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg">
+              <p class="text-xs font-semibold text-slate-600">Region</p>
+              <p class="text-lg font-bold text-slate-800">{{ region() }}</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg">
+              <p class="text-xs font-semibold text-slate-600">Map Coordinates</p>
+              <p class="text-sm font-mono text-slate-800">{{ mapCenterLat().toFixed(4) }}, {{ mapCenterLng().toFixed(4) }}</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg">
+              <p class="text-xs font-semibold text-slate-600">Zoom Level</p>
+              <p class="text-lg font-bold text-slate-800">{{ mapZoom() }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Stats -->
+        <div class="mb-8">
+          <h3 class="text-lg font-bold text-blue-900 mb-4">Selected Content</h3>
+          <div class="grid grid-cols-4 gap-3">
+            <div class="bg-white p-4 rounded-lg">
+              <p class="text-xs font-semibold text-slate-600">Culture Items</p>
+              <p class="text-3xl font-bold text-amber-600">{{ selectedCultureIds().length }}</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg">
+              <p class="text-xs font-semibold text-slate-600">Food Items</p>
+              <p class="text-3xl font-bold text-orange-600">{{ selectedFoodIds().length }}</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg">
+              <p class="text-xs font-semibold text-slate-600">Hotels</p>
+              <p class="text-3xl font-bold text-blue-600">{{ selectedHotelIds().length }}</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg">
+              <p class="text-xs font-semibold text-slate-600">Events</p>
+              <p class="text-3xl font-bold text-pink-600">{{ selectedEventIds().length }}</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg">
+              <p class="text-xs font-semibold text-slate-600">Activities</p>
+              <p class="text-3xl font-bold text-green-600">{{ selectedActivityIds().length }}</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg">
+              <p class="text-xs font-semibold text-slate-600">Delegations</p>
+              <p class="text-3xl font-bold text-purple-600">{{ selectedDelegationIds().length }}</p>
+            </div>
+            <!-- ✅ NEW: Nearby Cities Counter -->
+            <div class="bg-white p-4 rounded-lg">
+              <p class="text-xs font-semibold text-slate-600">Nearby Cities</p>
+              <p class="text-3xl font-bold text-cyan-600">{{ selectedNearbyCityIds().length }}</p>
+            </div>
+            <!-- Banner & CTA Counter -->
+            <div class="bg-white p-4 rounded-lg">
+              <p class="text-xs font-semibold text-slate-600">Banner & CTA</p>
+              <p class="text-3xl font-bold text-indigo-600">{{ (bannerTitle() ? 1 : 0) + (ctaTitle() ? 1 : 0) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="bg-white rounded-lg border-l-4" [class]="isValid() ? 'border-l-green-600' : 'border-l-yellow-600'" [class.p-4]="true">
+          <p [class]="isValid() ? 'text-green-700 font-bold' : 'text-yellow-700 font-bold'">
+            {{ isValid() ? '✅ Form is valid' : '⚠️ Form is incomplete' }}
+          </p>
+          <p class="text-xs text-slate-500 mt-1">
+            Ready to {{ isEdit() ? 'update' : 'create' }} city with {{ selectedCultureIds().length + selectedFoodIds().length + selectedHotelIds().length + selectedEventIds().length + selectedActivityIds().length + selectedDelegationIds().length + selectedNearbyCityIds().length }} content items
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+</div>

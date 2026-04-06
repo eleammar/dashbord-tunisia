@@ -1,0 +1,106 @@
+<div class="relative w-full">
+
+  <!-- ── TRIGGER ──────────────────────────────────── -->
+  <button type="button"
+          (click)="toggle()"
+          class="w-full flex items-center gap-2 px-3 py-2.5
+                 bg-[var(--bg-base)] dark:bg-surface-dark-muted
+                 border border-[var(--border)] rounded-input text-sm
+                 hover:border-primary-400 transition-all duration-150
+                 focus:outline-none focus:ring-2 focus:ring-primary-400
+                 focus:border-transparent">
+
+    <!-- Selected tags preview -->
+    <div class="flex-1 flex items-center gap-1.5 flex-wrap min-w-0">
+      <ng-container *ngIf="selected.length; else placeholder">
+        <app-tag-badge *ngFor="let tag of displayedTags()"
+                       [tag]="tag" size="sm"
+                       [removable]="true"
+                       (remove)="removeTag($event)" />
+        <span *ngIf="hiddenCount() > 0"
+              class="text-2xs bg-surface-muted dark:bg-surface-dark-muted
+                     text-content-muted rounded-pill px-2 py-0.5 font-medium">
+          +{{ hiddenCount() }}
+        </span>
+      </ng-container>
+      <ng-template #placeholder>
+        <span class="text-content-muted">{{ label }}</span>
+      </ng-template>
+    </div>
+
+    <!-- Icons -->
+    <div class="flex items-center gap-1.5 flex-shrink-0">
+      <button *ngIf="selected.length"
+              type="button"
+              (click)="$event.stopPropagation(); clearAll()"
+              class="text-content-muted hover:text-danger
+                     transition-colors duration-150 text-xs">
+        ✕
+      </button>
+      <span class="text-content-muted text-xs transition-transform duration-200"
+            [class.rotate-180]="isOpen()">▾</span>
+    </div>
+
+  </button>
+
+  <!-- ── DROPDOWN ──────────────────────────────────── -->
+  <div *ngIf="isOpen()"
+       class="absolute top-full left-0 right-0 mt-1.5 z-50
+              bg-[var(--bg-base)] border border-[var(--border)]
+              rounded-modal shadow-card-xl overflow-hidden animate-fade-in">
+
+    <!-- Search -->
+    <div class="px-3 py-2.5 border-b border-[var(--border)]">
+      <div class="flex items-center gap-2
+                  bg-[var(--bg-muted)] rounded-input px-3 py-2">
+        <span class="text-content-muted text-xs">🔍</span>
+        <input type="text"
+               [ngModel]="searchQuery()"
+               (ngModelChange)="searchQuery.set($event)"
+               [placeholder]="placeholder"
+               class="bg-transparent text-sm text-content-primary
+                      placeholder:text-content-muted outline-none flex-1"
+               (click)="$event.stopPropagation()" />
+      </div>
+    </div>
+
+    <!-- Options List -->
+    <div class="max-h-52 overflow-y-auto">
+
+      <div *ngIf="filteredOptions().length === 0"
+           class="px-4 py-6 text-center text-sm text-content-muted">
+        Aucun tag trouvé
+      </div>
+
+      <button *ngFor="let option of filteredOptions()"
+              type="button"
+              (click)="toggleOption(option)"
+              class="w-full flex items-center justify-between gap-3
+                     px-3 py-2.5 hover:bg-[var(--bg-muted)]
+                     transition-colors duration-100 text-left">
+        <app-tag-badge [tag]="option" size="sm" />
+        <!-- Check -->
+        <span *ngIf="isSelected(option)"
+              class="text-primary-500 text-sm flex-shrink-0 font-bold">
+          ✓
+        </span>
+      </button>
+
+    </div>
+
+    <!-- Footer -->
+    <div *ngIf="selected.length"
+         class="px-3 py-2.5 border-t border-[var(--border)]
+                bg-[var(--bg-subtle)] flex items-center justify-between">
+      <span class="text-xs text-content-muted">
+        {{ selected.length }} sélectionné(s)
+      </span>
+      <button type="button"
+              (click)="clearAll()"
+              class="text-xs text-danger hover:underline">
+        Tout effacer
+      </button>
+    </div>
+
+  </div>
+</div>

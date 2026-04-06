@@ -1,0 +1,427 @@
+<div class="space-y-6 animate-fade-in">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       1. PAGE HEADER
+       ══════════════════════════════════════════════════════════ -->
+  <div class="flex flex-col gap-5">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-1.5 text-xs text-slate-400">
+      <span class="hover:text-slate-600 cursor-pointer transition-colors">
+        Dashboard
+      </span>
+      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+      </svg>
+      <span class="text-slate-700 font-medium">City Management</span>
+    </nav>
+
+    <!-- Title & Action Buttons -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-800 tracking-tight">
+          🏛️ City Management
+        </h1>
+        <p class="text-sm text-slate-500 mt-1">
+          Manage all destination cities across Tunisia
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Export Button -->
+        <button
+          (click)="exportCsv()"
+          class="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200
+                 text-slate-600 text-sm font-medium rounded-lg
+                 hover:bg-slate-50 transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Export CSV
+        </button>
+
+        <!-- Create New City Button -->
+        <a routerLink="new"
+           class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white
+                  text-sm font-semibold rounded-lg shadow-lg shadow-blue-600/25
+                  hover:shadow-blue-600/40 transition-all group">
+          <svg class="w-4 h-4 group-hover:rotate-90 transition-transform"
+               fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          New City
+        </a>
+      </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Total Cities -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-slate-800">{{ totalCitiesCount() }}</p>
+            <p class="text-xs font-medium text-slate-500">Total Cities</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtered Count -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-emerald-50 flex items-center justify-center">
+            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-slate-800">{{ filteredCount() }}</p>
+            <p class="text-xs font-medium text-slate-500">Showing</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Filters -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-amber-50 flex items-center justify-center">
+            <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-slate-800">{{ hasActiveFilters() ? '✓' : '—' }}</p>
+            <p class="text-xs font-medium text-slate-500">Active Filters</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       2. FILTERS & CONTROLS
+       ══════════════════════════════════════════════════════════ -->
+  <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+    <div class="flex flex-col sm:flex-row gap-3 items-end">
+      <!-- Search -->
+      <div class="flex-1 min-w-[200px]">
+        <label class="block text-xs font-semibold text-slate-600 mb-2">Search</label>
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
+               fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search by name or region..."
+            class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg
+                   bg-slate-50 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            [ngModel]="filters().search"
+            (ngModelChange)="setFilter('search', $event)" />
+          <button
+            *ngIf="filters().search"
+            (click)="setFilter('search', '')"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Region Filter -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-2">Region</label>
+        <select
+          class="px-4 py-2.5 border border-slate-300 rounded-lg bg-slate-50 text-sm
+                 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
+          [ngModel]="filters().region"
+          (ngModelChange)="setFilter('region', $event)">
+          <option value="">All regions</option>
+          <option *ngFor="let r of regions" [value]="r">{{ r }}</option>
+        </select>
+      </div>
+
+      <!-- Sort -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-2">Sort By</label>
+        <select
+          class="px-4 py-2.5 border border-slate-300 rounded-lg bg-slate-50 text-sm
+                 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
+          [ngModel]="filters().sortBy"
+          (ngModelChange)="setFilter('sortBy', $event)">
+          <option value="name">Name A–Z</option>
+          <option value="region">Region</option>
+        </select>
+      </div>
+
+      <!-- Reset Button -->
+      <button
+        *ngIf="hasActiveFilters()"
+        (click)="resetFilters()"
+        class="px-4 py-2.5 text-red-600 hover:text-red-700 text-sm font-medium transition-colors">
+        Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       3. LOADING STATE
+       ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="loading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div *ngFor="let _ of [1, 2, 3, 4, 5, 6]"
+         class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <div class="h-6 bg-slate-200 rounded animate-pulse w-2/3 mb-3"></div>
+      <div class="h-4 bg-slate-100 rounded animate-pulse w-1/2 mb-4"></div>
+      <div class="flex gap-2">
+        <div class="h-9 bg-slate-100 rounded animate-pulse flex-1"></div>
+        <div class="h-9 bg-slate-100 rounded animate-pulse flex-1"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       4. EMPTY STATE
+       ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="!loading() && filteredCount() === 0"
+       class="flex flex-col items-center justify-center py-16 text-center">
+    <div class="w-20 h-20 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center mb-4">
+      <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.25">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+    </div>
+    <h3 class="text-lg font-bold text-slate-800 mb-1">No cities found</h3>
+    <p class="text-sm text-slate-500 mb-6">
+      {{ hasActiveFilters()
+        ? 'No cities match your filters. Try adjusting them.'
+        : 'No cities yet. Create your first city to get started!' }}
+    </p>
+    <div class="flex gap-3">
+      <button
+        *ngIf="hasActiveFilters()"
+        (click)="resetFilters()"
+        class="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg
+               text-sm font-medium hover:bg-slate-50 transition-all">
+        Clear Filters
+      </button>
+      <a routerLink="new"
+         class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg
+                text-sm font-medium transition-all">
+        Create First City
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       5A. GRID VIEW
+       ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="!loading() && filteredCount() > 0 && viewMode() === 'grid'"
+       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div *ngFor="let city of paged()"
+         (click)="viewCity(city.id)"
+         class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm
+                hover:shadow-md hover:border-slate-300 transition-all cursor-pointer group">
+      <!-- Header -->
+      <div class="mb-4">
+        <h3 class="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
+          {{ city.name }}
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">
+          <span class="inline-block px-2 py-1 rounded-md bg-slate-100 text-slate-600">
+            {{ city.region }}
+          </span>
+        </p>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-2 pt-3 border-t border-slate-100">
+        <button
+          (click)="viewCity(city.id)"
+          class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg
+                 bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-semibold
+                 transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          View
+        </button>
+
+        <button
+          (click)="editCity(city.id, $event)"
+          class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg
+                 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold
+                 transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          Edit
+        </button>
+
+        <button
+          (click)="confirmDelete(city.id, city.name, $event)"
+          class="flex items-center justify-center px-3 py-2 rounded-lg
+                 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold
+                 transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       5B. TABLE VIEW
+       ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="!loading() && filteredCount() > 0 && viewMode() === 'table'"
+       class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="border-b border-slate-200 bg-slate-50">
+            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-600">
+              City
+            </th>
+            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-600">
+              Region
+            </th>
+            <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-600">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+          <tr *ngFor="let city of paged()"
+              (click)="viewCity(city.id)"
+              class="hover:bg-slate-50 transition-colors cursor-pointer">
+            <td class="px-6 py-4">
+              <p class="font-semibold text-slate-800">{{ city.name }}</p>
+            </td>
+            <td class="px-6 py-4">
+              <span class="inline-block px-3 py-1 rounded-lg text-xs font-medium
+                           bg-slate-100 text-slate-600">
+                {{ city.region }}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex items-center justify-end gap-2">
+                <button
+                  (click)="viewCity(city.id)"
+                  class="px-3 py-1.5 text-xs font-medium rounded-lg
+                         border border-blue-200 text-blue-600 hover:bg-blue-50
+                         transition-all">
+                  View
+                </button>
+                <button
+                  (click)="editCity(city.id, $event)"
+                  class="px-3 py-1.5 text-xs font-medium rounded-lg
+                         border border-slate-200 text-slate-600 hover:bg-slate-50
+                         transition-all">
+                  Edit
+                </button>
+                <button
+                  (click)="confirmDelete(city.id, city.name, $event)"
+                  class="px-3 py-1.5 text-xs font-medium rounded-lg
+                         border border-red-200 text-red-600 hover:bg-red-50
+                         transition-all">
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       6. PAGINATION
+       ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="!loading() && totalPages() > 1"
+       class="flex items-center justify-center gap-2 mt-8">
+    <button
+      (click)="goToPage(currentPage() - 1)"
+      [disabled]="currentPage() === 1"
+      class="px-3 py-2 rounded-lg border border-slate-200 text-slate-600
+             hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
+      ← Prev
+    </button>
+
+    <div class="flex gap-1">
+      <button
+        *ngFor="let p of pageNumbers()"
+        (click)="goToPage(p)"
+        [disabled]="p === '…'"
+        [class.bg-blue-600]="p === currentPage()"
+        [class.text-white]="p === currentPage()"
+        [class.text-slate-600]="p !== currentPage()"
+        [class.border-blue-600]="p === currentPage()"
+        [class.border-slate-200]="p !== currentPage()"
+        class="px-3 py-2 rounded-lg border font-medium transition-all
+               hover:border-slate-300 disabled:cursor-default">
+        {{ p }}
+      </button>
+    </div>
+
+    <button
+      (click)="goToPage(currentPage() + 1)"
+      [disabled]="currentPage() === totalPages()"
+      class="px-3 py-2 rounded-lg border border-slate-200 text-slate-600
+             hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
+      Next →
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       7. DELETE MODAL
+       ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="showDeleteModal()"
+       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full mx-4 p-6 space-y-4 animate-fade-in">
+      <div class="flex items-start gap-3">
+        <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-bold text-slate-800">Delete City</h3>
+          <p class="text-sm text-slate-600 mt-1">
+            Are you sure you want to delete <strong>{{ deletingCityName() }}</strong>?
+            This action cannot be undone.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-4">
+        <button
+          (click)="cancelDelete()"
+          class="flex-1 px-4 py-2.5 rounded-lg border border-slate-200
+                 text-slate-600 font-medium hover:bg-slate-50 transition-all">
+          Cancel
+        </button>
+        <button
+          (click)="deleteCity()"
+          class="flex-1 px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700
+                 text-white font-medium transition-all">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

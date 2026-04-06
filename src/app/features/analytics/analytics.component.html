@@ -1,0 +1,141 @@
+<div class="space-y-5 animate-fade-in">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Analytics</h1>
+      <p class="page-subtitle">Platform performance & AI engine metrics</p>
+    </div>
+    <!-- Period selector -->
+    <div class="flex items-center gap-1 bg-white dark:bg-white/[0.04]
+                border border-slate-200 dark:border-white/[0.08]
+                rounded-lg p-1">
+      <button *ngFor="let p of [['7d','7 days'],['30d','30 days'],['90d','90 days']]"
+              (click)="period.set($any(p[0]))"
+              class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150"
+              [class]="period() === p[0]
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'">
+        {{ p[1] }}
+      </button>
+    </div>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div *ngFor="let s of stats" class="card p-5">
+      <div class="flex items-start justify-between mb-4">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center" [class]="s.bg">
+          <svg class="w-5 h-5" [class]="s.color" fill="none" stroke="currentColor"
+               viewBox="0 0 24 24" stroke-width="1.75">
+            <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="s.svgPath"/>
+          </svg>
+        </div>
+        <span class="text-xs font-semibold rounded-full px-2 py-1"
+              [class]="s.change > 0
+                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400'
+                : 'bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400'">
+          {{ formatChange(s.change) }}
+        </span>
+      </div>
+      <p class="font-display text-3xl font-bold text-slate-800 dark:text-white">{{ s.value }}</p>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5">{{ s.label }}</p>
+    </div>
+  </div>
+
+  <!-- ROW 2 — Top Cities + Top Tags -->
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+
+    <!-- Top cities -->
+    <div class="card p-0 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 dark:border-white/[0.06]">
+        <h3 class="font-display font-semibold text-[15px] text-slate-800 dark:text-white">
+          Top Recommended Cities
+        </h3>
+        <p class="text-xs text-slate-400 mt-0.5">Based on AI recommendation count</p>
+      </div>
+      <div class="px-6 py-5 space-y-4">
+        <div *ngFor="let c of topCities" class="space-y-1.5">
+          <div class="flex items-center justify-between text-sm">
+            <span class="font-medium text-slate-700 dark:text-slate-300">{{ c.label }}</span>
+            <span class="font-semibold text-slate-800 dark:text-white">{{ c.value }}</span>
+          </div>
+          <div class="h-2 bg-slate-100 dark:bg-white/[0.06] rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-700"
+                 [style.width.%]="c.pct" [style.background-color]="c.color"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top tags -->
+    <div class="card p-0 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 dark:border-white/[0.06]">
+        <h3 class="font-display font-semibold text-[15px] text-slate-800 dark:text-white">
+          Most Matched Tags
+        </h3>
+        <p class="text-xs text-slate-400 mt-0.5">Tags most frequently matched in AI scoring</p>
+      </div>
+      <div class="px-6 py-5 space-y-4">
+        <div *ngFor="let t of topTags" class="space-y-1.5">
+          <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full" [style.background-color]="t.color"></span>
+              <span class="font-medium text-slate-700 dark:text-slate-300">{{ t.label }}</span>
+            </div>
+            <span class="font-semibold text-slate-800 dark:text-white">{{ t.value }}</span>
+          </div>
+          <div class="h-2 bg-slate-100 dark:bg-white/[0.06] rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-700"
+                 [style.width.%]="t.pct" [style.background-color]="t.color"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ROW 3 — Devices + AI Scores -->
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+
+    <!-- Device breakdown -->
+    <div class="card p-0 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 dark:border-white/[0.06]">
+        <h3 class="font-display font-semibold text-[15px] text-slate-800 dark:text-white">Device Breakdown</h3>
+      </div>
+      <div class="px-6 py-5 space-y-4">
+        <div *ngFor="let d of deviceData">
+          <div class="flex items-center justify-between text-sm mb-1.5">
+            <span class="font-medium text-slate-700 dark:text-slate-300">{{ d.label }}</span>
+            <span class="font-bold text-slate-800 dark:text-white">{{ d.pct }}%</span>
+          </div>
+          <div class="h-2.5 bg-slate-100 dark:bg-white/[0.06] rounded-full overflow-hidden">
+            <div class="h-full rounded-full" [style.width.%]="d.pct" [style.background-color]="d.color"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Engine scores -->
+    <div class="xl:col-span-2 card p-0 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 dark:border-white/[0.06]">
+        <h3 class="font-display font-semibold text-[15px] text-slate-800 dark:text-white">
+          AI Engine Performance
+        </h3>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0
+                  divide-slate-100 dark:divide-white/[0.06]">
+        <div *ngFor="let m of [
+               {label:'Engine Health', score:87},
+               {label:'Tag Coverage',  score:74},
+               {label:'Avg Match',     score:68},
+               {label:'Satisfaction',  score:89}]"
+             class="flex flex-col items-center py-8 px-4 gap-3">
+          <app-score-ring [score]="m.score" [size]="80" [strokeWidth]="7" [label]="m.label"/>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

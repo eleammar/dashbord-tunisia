@@ -1,0 +1,259 @@
+<div class="min-h-screen bg-white">
+
+  <!-- LOADING -->
+  <div *ngIf="loading()" class="space-y-6 p-6">
+    <div class="h-80 bg-slate-200 rounded-2xl animate-pulse"></div>
+    <div class="grid grid-cols-3 gap-4">
+      <div *ngFor="let _ of [1,2,3]" class="h-32 bg-slate-200 rounded-xl animate-pulse"></div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <ng-container *ngIf="!loading() && city() as c">
+
+    <!-- ══════════════════════════════════════════════
+         1. HERO
+    ══════════════════════════════════════════════ -->
+    <div class="relative h-80 overflow-hidden bg-slate-200">
+      <img *ngIf="c.hero?.bg" [src]="c.hero.bg" [alt]="c.name"
+           class="w-full h-full object-cover"/>
+      
+      <!-- Gradient overlay -->
+      <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+
+      <!-- Top navigation -->
+      <div class="absolute top-0 left-0 right-0 p-6 flex items-center justify-between">
+        <button (click)="goBack()"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg
+                       bg-black/40 backdrop-blur-sm text-white text-sm font-medium
+                       hover:bg-black/60 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Back
+        </button>
+      </div>
+
+      <!-- Title overlay -->
+      <div class="absolute bottom-0 left-0 right-0 p-8">
+        <h1 class="text-5xl font-bold text-white mb-2">{{ c.name }}</h1>
+        <p class="text-white/80 text-lg">{{ c.region }}</p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         2. ABOUT SECTION
+    ══════════════════════════════════════════════ -->
+    <div *ngIf="c.about" class="px-8 py-12">
+      <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Image -->
+        <div class="rounded-2xl overflow-hidden">
+          <img [src]="c.about.img" [alt]="c.name" class="w-full h-full object-cover rounded-2xl"/>
+        </div>
+
+        <!-- Content -->
+        <div>
+          <span class="text-xs font-semibold tracking-widest uppercase text-slate-400 block mb-3">
+            {{ c.about.label }}
+          </span>
+          <h2 class="text-4xl font-bold text-slate-800 mb-6">
+            {{ c.about.headline }}
+          </h2>
+          <p class="text-slate-600 text-lg leading-relaxed mb-6">
+            {{ c.about.body }}
+          </p>
+
+          <!-- Stats -->
+          <div *ngIf="c.about.stats?.length" class="grid grid-cols-3 gap-4">
+            <div *ngFor="let stat of c.about.stats" class="text-center">
+              <p class="text-2xl font-bold text-slate-800">{{ stat.num }}</p>
+              <p class="text-xs text-slate-500 mt-1">{{ stat.label }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         3. TABS
+    ══════════════════════════════════════════════ -->
+    <div class="px-8 border-b border-slate-200">
+      <div class="max-w-5xl mx-auto flex gap-1 -mb-px">
+        <button *ngFor="let t of tabs"
+                (click)="tab.set(t.key)"
+                class="flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-all"
+                [class]="tab() === t.key
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-slate-600 hover:text-slate-800'">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="t.icon"/>
+          </svg>
+          {{ t.label }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         4. TAB CONTENTS
+    ══════════════════════════════════════════════ -->
+    <div class="px-8 py-12">
+      <div class="max-w-5xl mx-auto">
+
+        <!-- OVERVIEW -->
+        <div *ngIf="tab() === 'overview'" class="space-y-6">
+          <div class="grid grid-cols-2 gap-6">
+            <div class="bg-slate-50 p-6 rounded-xl">
+              <h3 class="font-bold text-slate-800 mb-4">Location</h3>
+              <div class="space-y-2 text-sm text-slate-600">
+                <p><strong>Lat:</strong> {{ c.mapCenter[0] }}</p>
+                <p><strong>Lng:</strong> {{ c.mapCenter[1] }}</p>
+                <p><strong>Region:</strong> {{ c.region }}</p>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-6 rounded-xl">
+              <h3 class="font-bold text-slate-800 mb-4">Map Info</h3>
+              <div class="space-y-2 text-sm text-slate-600">
+                <p><strong>Zoom:</strong> {{ c.mapZoom }}</p>
+                <p><strong>Source:</strong> {{ c.mapSrc }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CULTURE -->
+        <div *ngIf="tab() === 'culture' && c.culture?.items?.length" class="space-y-6">
+          <h3 class="text-2xl font-bold text-slate-800">{{ c.culture.title }}</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div *ngFor="let item of c.culture.items" class="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+              <img *ngIf="item.img" [src]="item.img" [alt]="item.title" class="w-full h-48 object-cover"/>
+              <div class="p-4">
+                <p class="text-xs text-slate-500 mb-1">{{ item.label }}</p>
+                <h4 class="font-bold text-slate-800">{{ item.title }}</h4>
+                <p class="text-sm text-slate-600 mt-2">{{ item.description }}</p>
+                <div class="flex items-center gap-1 mt-3">
+                  <span *ngFor="let _ of [1,2,3,4,5]" class="text-yellow-400">★</span>
+                  <span class="text-sm text-slate-500">{{ item.rating }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EVENTS -->
+        <div *ngIf="tab() === 'events' && c.events?.length" class="space-y-6">
+          <h3 class="text-2xl font-bold text-slate-800">Events</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div *ngFor="let event of c.events" class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <img *ngIf="event.img" [src]="event.img" [alt]="event.name" class="w-full h-48 object-cover"/>
+              <div class="p-4">
+                <p class="text-xs text-slate-500 mb-2">{{ event.date }}</p>
+                <h4 class="font-bold text-slate-800">{{ event.name }}</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXPERIENCES -->
+        <div *ngIf="tab() === 'experiences' && c.experiences?.length" class="space-y-6">
+          <h3 class="text-2xl font-bold text-slate-800">Activities & Experiences</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div *ngFor="let exp of c.experiences" class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <img *ngIf="exp.img" [src]="exp.img" [alt]="exp.name" class="w-full h-48 object-cover"/>
+              <div class="p-4">
+                <p class="text-xs text-slate-500 mb-1">{{ exp.type }}</p>
+                <h4 class="font-bold text-slate-800">{{ exp.name }}</h4>
+                <div class="flex items-center gap-1 mt-2">
+                  <span class="text-yellow-400">★</span>
+                  <span class="text-sm text-slate-600">{{ exp.r }}/5</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FOOD -->
+        <div *ngIf="tab() === 'food' && c.food?.length" class="space-y-6">
+          <h3 class="text-2xl font-bold text-slate-800">Food & Dining</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div *ngFor="let place of c.food" class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <img *ngIf="place.img" [src]="place.img" [alt]="place.name" class="w-full h-48 object-cover"/>
+              <div class="p-4">
+                <p class="text-xs text-slate-500 mb-1">{{ place.cat }}</p>
+                <h4 class="font-bold text-slate-800">{{ place.name }}</h4>
+                <p class="text-sm text-slate-600 mt-2">{{ place.desc }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HOTELS -->
+        <div *ngIf="tab() === 'hotels' && c.hotels?.length" class="space-y-6">
+          <h3 class="text-2xl font-bold text-slate-800">Hotels & Accommodation</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div *ngFor="let hotel of c.hotels" class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <img *ngIf="hotel.img" [src]="hotel.img" [alt]="hotel.n" class="w-full h-48 object-cover"/>
+              <div class="p-4">
+                <h4 class="font-bold text-slate-800">{{ hotel.n }}</h4>
+                <p class="text-xs text-slate-500 mt-1">{{ hotel.dist }} km from center</p>
+                <div class="flex items-center justify-between mt-3">
+                  <span class="text-sm font-semibold text-slate-800">${{ hotel.price }}/night</span>
+                  <span class="text-sm text-yellow-500">★ {{ hotel.r }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NO DATA -->
+        <div *ngIf="!c.culture?.items?.length && !c.events?.length && !c.experiences?.length && !c.food?.length && !c.hotels?.length && tab() !== 'overview'"
+             class="text-center py-12">
+          <p class="text-slate-500 text-lg">No data available for this section yet.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         5. BANNER + CTA
+    ══════════════════════════════════════════════ -->
+    <div *ngIf="c.banner || c.cta" class="px-8 py-12 bg-slate-50">
+      <div class="max-w-5xl mx-auto space-y-6">
+
+        <!-- BANNER -->
+        <div *ngIf="c.banner" class="bg-blue-600 text-white rounded-2xl p-8 overflow-hidden relative">
+          <div *ngIf="c.banner.images?.length" class="absolute inset-0 opacity-20"
+               [style.backgroundImage]="c.banner.images?.[0] ? 'url(' + c.banner.images?.[0] + ')' : 'none'">
+          </div>
+          <div class="relative z-10">
+            <h3 class="text-2xl font-bold mb-2">{{ c.banner.title }}</h3>
+            <p class="text-white/90 mb-4">{{ c.banner.subtitle }}</p>
+            <a *ngIf="c.banner.ctaUrl" [href]="c.banner.ctaUrl" target="_blank"
+               class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-blue-600 font-semibold hover:bg-slate-100 transition-colors">
+              {{ c.banner.ctaLabel }}
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div *ngIf="c.cta" class="bg-white border border-slate-200 rounded-2xl p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">{{ c.cta.label }}</p>
+            <h3 class="text-2xl font-bold text-slate-800 mb-3">{{ c.cta.title }}</h3>
+            <p class="text-slate-600">{{ c.cta.description }}</p>
+          </div>
+          <div class="rounded-xl overflow-hidden">
+            <img *ngIf="c.cta.image" [src]="c.cta.image" [alt]="c.cta.title"
+                 class="w-full h-full object-cover rounded-xl"/>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
+
+</div>

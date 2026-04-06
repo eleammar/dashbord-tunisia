@@ -1,0 +1,31 @@
+<span
+  [class]="'inline-flex items-center rounded-tag font-medium cursor-pointer
+            select-none transition-all duration-150 ' + sizeClasses"
+  [class.opacity-40]="disabled"
+  [class.ring-2]="selected"
+  [class.ring-offset-1]="selected"
+  [style.background-color]="bgColor"
+  [style.color]="textColor"
+  [style.ring-color]="tag.color"
+  (click)="onToggle()">
+
+  <!-- Icon -->
+  <span *ngIf="tag.icon" class="leading-none">{{ tag.icon }}</span>
+
+  <!-- Name -->
+  <span>{{ tag.name }}</span>
+
+  <!-- Selected checkmark -->
+  <span *ngIf="selected && !removable"
+        class="ml-0.5 opacity-70">✓</span>
+
+  <!-- Remove button -->
+  <button *ngIf="removable"
+          (click)="onRemove($event)"
+          class="ml-0.5 rounded-full hover:opacity-60
+                 transition-opacity duration-100
+                 leading-none focus:outline-none">
+    ✕
+  </button>
+
+</span>

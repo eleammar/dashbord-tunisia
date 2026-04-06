@@ -1,0 +1,53 @@
+<div class="flex flex-col items-center gap-1.5"
+     [title]="'Score : ' + score + '% — ' + scoreLabel">
+
+  <div class="relative" [style.width.px]="size" [style.height.px]="size">
+
+    <!-- SVG Ring -->
+    <svg [attr.width]="size" [attr.height]="size"
+         class="-rotate-90 block">
+
+      <!-- Track -->
+      <circle
+        [attr.cx]="cx" [attr.cy]="cy" [attr.r]="radius"
+        fill="none"
+        stroke-linecap="round"
+        class="stroke-surface-muted dark:stroke-surface-dark-muted"
+        [attr.stroke-width]="strokeWidth" />
+
+      <!-- Score Arc -->
+      <circle
+        [attr.cx]="cx" [attr.cy]="cy" [attr.r]="radius"
+        fill="none"
+        [attr.stroke]="scoreColor"
+        [attr.stroke-width]="strokeWidth"
+        stroke-linecap="round"
+        [attr.stroke-dasharray]="circumference"
+        [attr.stroke-dashoffset]="dashOffset"
+        [class.transition-all]="animated"
+        [class.duration-700]="animated"
+        [class.ease-out]="animated" />
+
+    </svg>
+
+    <!-- Center Text -->
+    <div class="absolute inset-0 flex flex-col items-center justify-center">
+      <span class="font-display font-bold leading-none text-content-primary"
+            [style.font-size.px]="fontSize">
+        {{ score }}
+      </span>
+      <span class="text-content-muted leading-none"
+            [style.font-size.px]="subFontSize">
+        %
+      </span>
+    </div>
+
+  </div>
+
+  <!-- Optional Label -->
+  <span *ngIf="label"
+        class="text-2xs text-content-muted font-medium text-center">
+    {{ label }}
+  </span>
+
+</div>

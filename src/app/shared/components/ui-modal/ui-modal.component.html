@@ -1,0 +1,71 @@
+<ng-container *ngIf="isOpen">
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+       (click)="close()">
+
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-slate-900/60
+                backdrop-blur-[2px] animate-fade-in-fast"></div>
+
+    <!-- Panel -->
+    <div class="relative z-10 w-full flex flex-col
+                bg-[var(--bg-base)] rounded-modal
+                shadow-card-xl animate-scale-in
+                overflow-hidden"
+         [class]="sizeMap[size]"
+         (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between
+                  px-6 py-4 border-b border-[var(--border)]
+                  flex-shrink-0">
+        <h3 class="font-display font-semibold text-base
+                   text-[var(--text-primary)] tracking-tight">
+          {{ title }}
+        </h3>
+        <button *ngIf="closable && !loading"
+                (click)="close()"
+                class="btn-icon w-8 h-8 text-[var(--text-muted)]
+                       hover:text-[var(--text-primary)]
+                       hover:bg-[var(--bg-muted)]">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor"
+               viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="flex-1 overflow-y-auto px-6 py-5">
+        <ng-content />
+      </div>
+
+      <!-- Footer -->
+      <div *ngIf="showFooter"
+           class="flex items-center justify-end gap-2.5 px-6 py-4
+                  border-t border-[var(--border)]
+                  bg-[var(--bg-subtle)] flex-shrink-0">
+        <button (click)="close()"
+                [disabled]="loading"
+                class="btn-secondary btn-sm disabled:opacity-50">
+          {{ cancelLabel }}
+        </button>
+        <button (click)="confirm()"
+                [disabled]="loading"
+                class="btn-sm disabled:opacity-50"
+                [class]="danger ? 'btn-danger' : 'btn-primary'">
+          <svg *ngIf="loading"
+               class="w-3.5 h-3.5 animate-spin"
+               fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10"
+                    stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          {{ loading ? 'Processing...' : confirmLabel }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</ng-container>
