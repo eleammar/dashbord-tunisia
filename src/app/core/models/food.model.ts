@@ -1,161 +1,65 @@
-// ═══════════════════════════════════════════════════════════
-//  FOOD MODEL — Explorer Tunisia Admin
-// ═══════════════════════════════════════════════════════════
-
-import { Tag } from './tag.model';
-
-export type FoodCategory =
-  | 'restaurant'
-  | 'street-food'
-  | 'cafe'
-  | 'traditional'
-  | 'seafood'
-  | 'rooftop'
-  | 'bakery'
-  | 'juice-bar';
-
-export type CuisineType =
-  | 'tunisian'
-  | 'mediterranean'
-  | 'international'
-  | 'french'
-  | 'italian'
-  | 'fusion'
-  | 'vegetarian'
-  | 'seafood';
-
-export type PriceLevel = '$' | '$$' | '$$$' | '$$$$';
-
-export interface MenuItem {
-  id: string;
-  name: string;
-  nameAr?: string;
-  description?: string;
-  price: number;
-  currency: 'TND' | 'EUR';
-  isSignature?: boolean;    // Plat signature
-  allergens?: string[];
-  image?: string;
+export interface Recipe {
+  ingredients: string[];
+  steps: string[];
 }
 
-export interface FoodPlace {
-  id: string;
-  cityId: string;
+export interface PopularFood {
+  id: number;
   name: string;
-  nameAr?: string;
-  slug: string;
-  category: FoodCategory;
-  cuisineTypes: CuisineType[];
+  category: string;
   description: string;
-  descriptionAr?: string;
-  coverImage: string;
-  gallery: string[];
-  tags: Tag[];
-  menu?: MenuItem[];
-  priceLevel: PriceLevel;
-  priceRange: {
-    min: number;
-    max: number;
-    currency: 'TND' | 'EUR';
-  };
-  location: {
-    address: string;
-    coordinates: { lat: number; lng: number };
-  };
-  contact: {
-    phone?: string;
-    instagram?: string;
-    facebook?: string;
-  };
-  schedule: {
-    openDays: string[];
-    openTime: string;
-    closeTime: string;
-    isOpenLate?: boolean;    // Ouvert tard le soir
-  };
-  features: {
-    hasDelivery: boolean;
-    hasTakeaway: boolean;
-    hasReservation: boolean;
-    hasOutdoorSeating: boolean;
-    isHalal: boolean;
-    isVegetarianFriendly: boolean;
-  };
+  imageUrl: string;
+  city: string;
+  recipe: Recipe;
+  createdAt: string;
+}
+
+export interface AllFood {
+  id: number;
+  name: string;
+  category: string;
+  description: string;
+  imageUrl: string;
+  image_url?: string;
+  city: string;
   rating: number;
-  reviewsCount: number;
-  compatibilityScore?: number;
-  isActive: boolean;
-  isFeatured: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  recipe: Recipe;
+  createdAt: string;
 }
 
-// ── DTOs ───────────────────────────────────────────────────
-export interface CreateFoodPlaceDto {
-  cityId: string;
+export interface FoodRegion {
+  id: number;
+  govId: string;
   name: string;
-  nameAr?: string;
-  slug: string;
-  category: FoodCategory;
-  cuisineTypes: CuisineType[];
+  specialty: string;
   description: string;
-  coverImage: string;
-  gallery?: string[];
-  tagIds: string[];
-  menu?: MenuItem[];
-  priceLevel: PriceLevel;
-  priceRange: FoodPlace['priceRange'];
-  location: FoodPlace['location'];
-  contact?: FoodPlace['contact'];
-  schedule: FoodPlace['schedule'];
-  features?: FoodPlace['features'];
+  images: string[];
+  createdAt: string;
 }
 
-export interface UpdateFoodPlaceDto extends Partial<CreateFoodPlaceDto> {
-  isActive?: boolean;
-  isFeatured?: boolean;
+export interface FoodEvent {
+  id: number;
+  name: string;
+  date: string;
+  imageUrl: string;
+  description?: string;
+  createdAt: string;
 }
 
-// ── Mock Data ──────────────────────────────────────────────
-export const MOCK_FOOD_PLACES: FoodPlace[] = [
-  {
-    id: 'food-001',
-    cityId: 'city-001',
-    name: "Dar El Jeld",
-    slug: 'dar-el-jeld',
-    category: 'restaurant',
-    cuisineTypes: ['tunisian', 'mediterranean'],
-    description:
-      "Palais du 18ème siècle transformé en restaurant gastronomique, cuisine tunisienne authentique.",
-    coverImage: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800',
-    gallery: [],
-    tags: [],
-    priceLevel: '$$$',
-    priceRange: { min: 30, max: 90, currency: 'TND' },
-    location: {
-      address: '5 Rue Dar El Jeld, Médina de Tunis',
-      coordinates: { lat: 36.7985, lng: 10.1718 },
-    },
-    contact: { phone: '+216 71 560 916' },
-    schedule: {
-      openDays: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
-      openTime: '12:00',
-      closeTime: '23:00',
-    },
-    features: {
-      hasDelivery: false,
-      hasTakeaway: false,
-      hasReservation: true,
-      hasOutdoorSeating: false,
-      isHalal: true,
-      isVegetarianFriendly: false,
-    },
-    rating: 4.9,
-    reviewsCount: 1240,
-    compatibilityScore: 92,
-    isActive: true,
-    isFeatured: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-03-01'),
-  },
-];
+export interface Restaurant {
+  id: number;
+  name: string;
+  city: string;
+  rating: number;
+  type: string;
+  imageUrl: string;
+  link: string;
+  createdAt: string;
+}
+
+export interface FoodCategory {
+  id: number;
+  label: string;
+  icon: string;
+  value: string;
+}

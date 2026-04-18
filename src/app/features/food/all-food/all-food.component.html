@@ -1,0 +1,29 @@
+<div class="flex items-center justify-between mb-4">
+  <h2 class="text-2xl font-bold">All Foods</h2>
+  <button class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 text-sm font-medium shadow" (click)="addFood()">
+    + Add Food
+  </button>
+</div>
+<div *ngIf="loading()" class="text-slate-400">Chargement...</div>
+<div *ngIf="error()" class="text-red-500">{{error()}}</div>
+
+<div class="bg-white rounded-xl shadow p-6">
+  <div *ngIf="!loading() && !error() && foods().length === 0" class="text-slate-400">Aucun plat trouvé.</div>
+  <div *ngIf="foods().length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div *ngFor="let food of foods()" class="bg-white rounded-xl shadow p-4 flex flex-col">
+      <img [src]="food.imageUrl" [alt]="food.name" class="w-full h-40 object-cover rounded-lg mb-3 border" />
+      <div class="flex-1">
+        <h3 class="font-semibold text-lg mb-1">{{food.name}}</h3>
+        <div class="text-xs text-slate-500 mb-2">{{food.category}} - {{food.city}}</div>
+        <p class="text-slate-600 text-sm mb-2 line-clamp-3">{{food.description}}</p>
+      </div>
+      <div class="flex gap-2 mt-2">
+        <button class="px-3 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs font-medium" (click)="editFood(food)">Edit</button>
+        <button class="px-3 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200 text-xs font-medium" (click)="deleteFood(food)">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+

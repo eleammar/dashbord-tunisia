@@ -8,7 +8,6 @@ import { CityService }         from '../../core/services/city.service';
 import { ActivityService }     from '../../core/services/activity.service';
 import { HotelService }        from '../../core/services/hotel.service';
 import { EventService }        from '../../core/services/event.service';
-import { RecommendationService } from '../../core/services/recommendation.service';
 import { ScoreRingComponent }  from '../../shared/components/ui-score-ring/ui-score-ring.component';
 import { SkeletonComponent }   from '../../shared/components/ui-skeleton/ui-skeleton.component';
 
@@ -55,7 +54,6 @@ export class DashboardComponent implements OnInit {
   private activityService = inject(ActivityService);
   private hotelService  = inject(HotelService);
   private eventService  = inject(EventService);
-  private recService    = inject(RecommendationService);
 
   // ── Loading states ─────────────────────────────────────
   loading = signal(true);
@@ -64,7 +62,6 @@ export class DashboardComponent implements OnInit {
   readonly cities     = this.cityService.cities;
   readonly tags       = this.tagService.tags;
   readonly topTags    = this.tagService.topTags;
-  readonly engineStats = this.recService.engineStats;
 
   // ── KPI Cards ──────────────────────────────────────────
   readonly kpiCards: KpiCard[] = [
@@ -165,7 +162,6 @@ export class DashboardComponent implements OnInit {
     // Load services data
     this.cityService.getAll().subscribe();
     this.tagService.getAll().subscribe();
-    this.recService.getEngineStats().subscribe();
   }
 
   // ── Helpers ────────────────────────────────────────────

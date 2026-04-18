@@ -7,7 +7,7 @@ import {
   computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CityService } from '../../../core/services/city.service';
 import { CultureService } from '../../../core/services/culture.service';
@@ -16,6 +16,7 @@ import { FoodService } from '../../../core/services/food.service';
 import { HotelService } from '../../../core/services/hotel.service';
 import { ActivityService } from '../../../core/services/activity.service';
 import { DelegationService } from '../../../core/services/delegation.service';
+import { AllFood } from '../../../core/models/food.model';
 
 type FormTab =
   | 'general'
@@ -34,7 +35,7 @@ type FormTab =
 @Component({
   selector: 'app-city-form',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './city-form.component.html',
 })
 export class CityFormComponent implements OnInit {
@@ -79,7 +80,7 @@ export class CityFormComponent implements OnInit {
   allCultureItems = signal<any[]>([]);
   allEvents = signal<any[]>([]);
   allActivities = signal<any[]>([]);
-  allFood = signal<any[]>([]);
+  allFood = signal<AllFood[]>([]);
   allHotels = signal<any[]>([]);
   allDelegations = signal<any[]>([]);
   allNearbyCities = signal<any[]>([]); // ✅ NEW
@@ -259,6 +260,11 @@ export class CityFormComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
 
+    // Subscribe to food data from FoodService
+    this.foodSvc.allFoods$.subscribe((foods) => {
+      this.allFood.set(foods);
+    });
+
     if (id) {
       this.isEdit.set(true);
       this.cityId.set(id);
@@ -270,6 +276,50 @@ export class CityFormComponent implements OnInit {
     }
   }
 
+  private deduplicateById<T extends { id?: string | number }>(items: T[]): T[] {
+    const seen = new Set<string>();
+    return items.filter((item) => {
+      if (item == null || item.id == null) {
+        return false;
+      }
+      const id = String(item.id);
+      if (seen.has(id)) {
+        return false;
+      }
+      seen.add(id);
+      return true;
+    });
+  }
+
+  private uniqueIds(ids: Array<string | number | null | undefined>): string[] {
+    const seen = new Set<string>();
+    const unique: string[] = [];
+
+    for (const id of ids) {
+      if (id == null) {
+        continue;
+      }
+      const normalized = String(id);
+      if (seen.has(normalized)) {
+        continue;
+      }
+      seen.add(normalized);
+      unique.push(normalized);
+    }
+
+    return unique;
+  }
+
+  private normalizeId(id: string | number | null | undefined): string | null {
+    if (id == null) {
+      return null;
+    }
+    return String(id);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // UPDATED: loadCityData uses the city endpoint payload to populate lists
+  // ═══════════════════════════════════════════════════════════════════
   private loadCityData(id: string): void {
     this.loading.set(true);
 
@@ -278,9 +328,24 @@ export class CityFormComponent implements OnInit {
         const city = this.citySvc.currentCity();
         if (city) {
           this._fillForm(city);
+
+          // Use arrays returned by the city endpoint as the available lists
+          // for this city (so the dashboard sections show only items that
+          // belong to the city).
+          this.allFood.set(this.deduplicateById(Array.isArray(city.food) ? city.food : []));
+          this.allActivities.set(this.deduplicateById(Array.isArray(city.experiences) ? city.experiences : []));
+          this.allEvents.set(this.deduplicateById(Array.isArray(city.events) ? city.events : []));
+          this.allHotels.set(this.deduplicateById(Array.isArray(city.hotels) ? city.hotels : []));
+          this.allDelegations.set(this.deduplicateById(Array.isArray(city.delegations) ? city.delegations : []));
+          this.allCultureItems.set(this.deduplicateById(city.culture?.items ?? []));
+
+          // Load only the global data we still need (nearby cities). Pass false
+          // to avoid overwriting the city-specific lists above.
+          this._loadAllBackendData(false);
+        } else {
+          // Fallback: if currentCity not available, load global lists
+          this._loadAllBackendData();
         }
-        // ✅ Load ALL available data from backend
-        this._loadAllBackendData();
         this.loading.set(false);
       },
       error: (err) => {
@@ -293,48 +358,57 @@ export class CityFormComponent implements OnInit {
   }
 
   // ✅ LOAD ALL BACKEND DATA (NOT FILTERED BY CITY)
-  private _loadAllBackendData(): void {
-    // Load Culture
-    this.cultureSvc.getAll().subscribe({
-      next: (response: any) => this.allCultureItems.set(response.data ?? []),
-      error: (err) => console.error('Error loading culture:', err),
-    });
+  // loadGlobal = true (default) will fetch and set global lists (culture, events, activities, food, hotels, delegations).
+  // When called with loadGlobal = false, it will NOT overwrite those lists (useful in edit mode).
+  private _loadAllBackendData(loadGlobal = true): void {
+    if (loadGlobal) {
+      // Load Culture (global)
+      this.cultureSvc.getAll().subscribe({
+        next: (response: any) =>
+          this.allCultureItems.set(this.deduplicateById(response.data ?? [])),
+        error: (err) => console.error('Error loading culture:', err),
+      });
 
-    // Load Events
-    this.eventSvc.getAll().subscribe({
-      next: (response: any) => this.allEvents.set(response.data ?? []),
-      error: (err) => console.error('Error loading events:', err),
-    });
+      // Load Events (global)
+      this.eventSvc.getAll().subscribe({
+        next: (response: any) =>
+          this.allEvents.set(this.deduplicateById(response.data ?? [])),
+        error: (err) => console.error('Error loading events:', err),
+      });
 
-    // Load Activities
-    this.activitySvc.getAll().subscribe({
-      next: (response: any) => this.allActivities.set(response.data ?? []),
-      error: (err) => console.error('Error loading activities:', err),
-    });
+      // Load Activities (global)
+      this.activitySvc.getAll().subscribe({
+        next: (response: any) =>
+          this.allActivities.set(this.deduplicateById(response.data ?? [])),
+        error: (err) => console.error('Error loading activities:', err),
+      });
 
-    // Load Food
-    this.foodSvc.getAll().subscribe({
-      next: (response: any) => this.allFood.set(response.data ?? []),
-      error: (err) => console.error('Error loading food:', err),
-    });
+      // Load Food (global)
+      this.foodSvc.fetchAllFoods();
+      this.foodSvc.allFoods$.subscribe((foods) => {
+        this.allFood.set(this.deduplicateById(foods ?? []));
+      });
 
-    // Load Hotels
-    this.hotelSvc.getAll().subscribe({
-      next: (response: any) => this.allHotels.set(response.data ?? []),
-      error: (err) => console.error('Error loading hotels:', err),
-    });
+      // Load Hotels (global)
+      this.hotelSvc.getAll().subscribe({
+        next: (response: any) =>
+          this.allHotels.set(this.deduplicateById(response.data ?? [])),
+        error: (err) => console.error('Error loading hotels:', err),
+      });
 
-    // Load Delegations
-    this.delegationSvc.getAll().subscribe({
-      next: (response: any) => this.allDelegations.set(response.data ?? []),
-      error: (err) => console.error('Error loading delegations:', err),
-    });
+      // Load Delegations (global)
+      this.delegationSvc.getAll().subscribe({
+        next: (response: any) =>
+          this.allDelegations.set(this.deduplicateById(response.data ?? [])),
+        error: (err) => console.error('Error loading delegations:', err),
+      });
+    }
 
-    // ✅ NEW: Load all cities for nearby cities list
+    // Toujours charger la liste de toutes les villes (nearby), on ne l'écrase pas.
     this.citySvc.getAll().subscribe({
       next: (response: any) => {
         const cities = Array.isArray(response) ? response : response.data || [];
-        this.allNearbyCities.set(cities);
+        this.allNearbyCities.set(this.deduplicateById(cities));
       },
       error: (err) => console.error('Error loading cities:', err),
     });
@@ -366,32 +440,37 @@ export class CityFormComponent implements OnInit {
 
     // ✅ MARK ONLY THE ITEMS THAT ARE ALREADY ASSIGNED TO THIS CITY
     if (city.culture?.items) {
-      this.selectedCultureIds.set(city.culture.items.map((c: any) => c.id));
+      this.selectedCultureIds.set(this.uniqueIds(city.culture.items.map((c: any) => c.id)));
     }
 
     if (city.events) {
-      this.selectedEventIds.set(city.events.map((e: any) => e.id));
+      this.selectedEventIds.set(this.uniqueIds(city.events.map((e: any) => e.id)));
     }
 
     if (city.experiences) {
-      this.selectedActivityIds.set(city.experiences.map((a: any) => a.id));
+      this.selectedActivityIds.set(this.uniqueIds(city.experiences.map((a: any) => a.id)));
     }
 
     if (city.food) {
-      this.selectedFoodIds.set(city.food.map((f: any) => f.id));
+      // Si city.food est un tableau d'objets AllFood ou d'IDs
+      if (Array.isArray(city.food) && typeof city.food[0] === 'object') {
+        this.selectedFoodIds.set(this.uniqueIds(city.food.map((f: any) => f.id)));
+      } else {
+        this.selectedFoodIds.set(this.uniqueIds(city.food));
+      }
     }
 
     if (city.hotels) {
-      this.selectedHotelIds.set(city.hotels.map((h: any) => h.id));
+      this.selectedHotelIds.set(this.uniqueIds(city.hotels.map((h: any) => h.id)));
     }
 
     if (city.delegations) {
-      this.selectedDelegationIds.set(city.delegations.map((d: any) => d.id));
+      this.selectedDelegationIds.set(this.uniqueIds(city.delegations.map((d: any) => d.id)));
     }
 
     // ✅ NEW: Mark nearby cities
     if (city.nearbyCities) {
-      this.selectedNearbyCityIds.set(city.nearbyCities.map((c: any) => c.id));
+      this.selectedNearbyCityIds.set(this.uniqueIds(city.nearbyCities.map((c: any) => c.id)));
     }
 
     // Banner
@@ -504,30 +583,49 @@ export class CityFormComponent implements OnInit {
 
   toggleItemSelection(
     signal: WritableSignal<string[]>,
-    id: string
+    id: string | number | null | undefined
   ): void {
-    signal.update((ids) =>
-      ids.includes(id) ? ids.filter((i) => i !== id) : [...ids, id]
-    );
+    const normalizedId = this.normalizeId(id);
+    if (!normalizedId) {
+      return;
+    }
+
+    signal.update((ids) => {
+      const normalizedIds = this.uniqueIds(ids);
+      return normalizedIds.includes(normalizedId)
+        ? normalizedIds.filter((i) => i !== normalizedId)
+        : [...normalizedIds, normalizedId];
+    });
   }
 
-  isItemSelected(signal: WritableSignal<string[]>, id: string): boolean {
-    return signal().includes(id);
+  isItemSelected(
+    signal: WritableSignal<string[]>,
+    id: string | number | null | undefined
+  ): boolean {
+    const normalizedId = this.normalizeId(id);
+    if (!normalizedId) {
+      return false;
+    }
+
+    return this.uniqueIds(signal()).includes(normalizedId);
   }
 
   selectAllItems(signal: WritableSignal<string[]>, items: any[]): void {
-    signal.set(items.map((i) => i.id));
+    signal.set(this.uniqueIds(items.map((i) => this.normalizeId(i?.id))));
   }
 
   clearAllItems(signal: WritableSignal<string[]>): void {
     signal.set([]);
   }
 
-  getSelectedItems<T extends { id: string }>(
+  getSelectedItems<T extends { id: string | number }>(
     available: T[],
     selectedIds: string[]
   ): T[] {
-    return available.filter((item) => selectedIds.includes(item.id));
+    const selectedSet = new Set(this.uniqueIds(selectedIds));
+    return this.deduplicateById(available).filter((item) =>
+      selectedSet.has(String(item.id))
+    );
   }
 
   // ════════════════════════════════════════════════════════════
@@ -545,6 +643,14 @@ export class CityFormComponent implements OnInit {
     }
 
     this.saving.set(true);
+
+    const cultureIds = this.uniqueIds(this.selectedCultureIds());
+    const eventIds = this.uniqueIds(this.selectedEventIds());
+    const activityIds = this.uniqueIds(this.selectedActivityIds());
+    const foodIds = this.uniqueIds(this.selectedFoodIds());
+    const hotelIds = this.uniqueIds(this.selectedHotelIds());
+    const delegationIds = this.uniqueIds(this.selectedDelegationIds());
+    const nearbyCityIds = this.uniqueIds(this.selectedNearbyCityIds());
 
     const formData: any = {
       name: this.name(),
@@ -567,34 +673,38 @@ export class CityFormComponent implements OnInit {
       culture: {
         items: this.getSelectedItems(
           this.allCultureItems(),
-          this.selectedCultureIds()
+          cultureIds
         ),
       },
       events: this.getSelectedItems(
         this.allEvents(),
-        this.selectedEventIds()
+        eventIds
       ),
       experiences: this.getSelectedItems(
         this.allActivities(),
-        this.selectedActivityIds()
+        activityIds
       ),
-      food: this.getSelectedItems(
-        this.allFood(),
-        this.selectedFoodIds()
-      ),
+      food: foodIds,
       hotels: this.getSelectedItems(
         this.allHotels(),
-        this.selectedHotelIds()
+        hotelIds
       ),
       delegations: this.getSelectedItems(
         this.allDelegations(),
-        this.selectedDelegationIds()
+        delegationIds
       ),
       // ✅ NEW: Add nearby cities
       nearbyCities: this.getSelectedItems(
         this.allNearbyCities(),
-        this.selectedNearbyCityIds()
+        nearbyCityIds
       ),
+      cultureIds,
+      eventIds,
+      activityIds,
+      foodIds,
+      hotelIds,
+      delegationIds,
+      nearbyCityIds,
       banner: {
         type: this.bannerType(),
         title: this.bannerTitle(),
@@ -644,4 +754,13 @@ export class CityFormComponent implements OnInit {
   goBack(): void {
     this.router.navigate(['/cities']);
   }
+
+  getFoodImageUrl(food: any): string {
+  if (!food) return 'fallback-image-url';
+  const url = food.imageUrl || food.image_url || food.image;
+  if (!url) return 'fallback-image-url';
+  if (/^https?:\/\//i.test(url) || url.startsWith('data:')) return url;
+  // If running Angular on a different port, prepend backend origin:
+  return `http://localhost:5000${url.startsWith('/') ? '' : '/'}${url}`;
+}
 }

@@ -61,10 +61,22 @@ export class CitiesListComponent implements OnInit {
     'Sud-Ouest',
   ];
 
+  private deduplicateCitiesById(cities: CityListItem[]): CityListItem[] {
+    const seen = new Set<string>();
+    return cities.filter((city) => {
+      const id = String(city.id);
+      if (seen.has(id)) {
+        return false;
+      }
+      seen.add(id);
+      return true;
+    });
+  }
+
   // ── COMPUTED ─────────────────���─────────────────────────────
   filtered = computed(() => {
     const f = this.filters();
-    let list = [...this.cities()];
+    let list = this.deduplicateCitiesById(this.cities());
 
     // Search filter
     if (f.search) {

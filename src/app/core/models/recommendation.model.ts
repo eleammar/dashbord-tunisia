@@ -7,7 +7,6 @@ import { Tag } from './tag.model';
 import { City } from './city.model';
 import { Activity } from './activity.model';
 import { Hotel } from './hotel.model';
-import { FoodPlace } from './food.model';
 import { Event } from './event.model';
 import { CulturePlace } from './culture.model';
 
@@ -42,7 +41,6 @@ export interface RecommendationResult {
     cities:     ScoredEntity<City>[];
     activities: ScoredEntity<Activity>[];
     hotels:     ScoredEntity<Hotel>[];
-    food:       ScoredEntity<FoodPlace>[];
     events:     ScoredEntity<Event>[];
     culture:    ScoredEntity<CulturePlace>[];
   };

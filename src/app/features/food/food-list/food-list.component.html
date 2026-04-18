@@ -1,0 +1,35 @@
+<div class="space-y-6 animate-fade-in">
+  <!-- PAGE HEADER -->
+  <div class="flex flex-col gap-5">
+    <nav class="flex items-center gap-1.5 text-xs text-slate-400">
+      <span class="hover:text-slate-600 cursor-pointer transition-colors">Dashboard</span>
+      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+      </svg>
+      <span class="text-slate-700 font-medium">Food Management</span>
+    </nav>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-800 tracking-tight">🍽️ Food Management</h1>
+        <p class="text-sm text-slate-500 mt-1">Manage all foods across Tunisia</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Add action buttons here -->
+      </div>
+    </div>
+  </div>
+  <!-- FILTERS -->
+  <div class="flex flex-wrap gap-3 items-center">
+    <input type="text" placeholder="Search food..." class="input input-bordered w-48" [(ngModel)]="filters().search" />
+    <select class="select select-bordered w-40" [(ngModel)]="filters().category">
+      <option value="">All Categories</option>
+      <option *ngFor="let cat of categories | async" [value]="cat.value">{{cat.label}}</option>
+    </select>
+    <button class="btn btn-sm" (click)="resetFilters()">Reset</button>
+  </div>
+  <!-- FOOD GRID (to be implemented) -->
+  <div>
+    <!-- TODO: Display food cards here -->
+    <p class="text-slate-400">Food list display coming soon...</p>
+  </div>
+</div>

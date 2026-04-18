@@ -1,0 +1,24 @@
+<div class="flex items-center justify-between mb-4">
+  <h2 class="text-2xl font-bold">Food Events</h2>
+  <button class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 text-sm font-medium shadow" (click)="addEvent()">
+    + Add Event
+  </button>
+</div>
+<div *ngIf="loading()" class="text-slate-400">Chargement...</div>
+<div *ngIf="error()" class="text-red-500">{{error()}}</div>
+<div *ngIf="!loading() && !error() && events().length === 0" class="text-slate-400">Aucun événement trouvé.</div>
+
+<div *ngIf="events().length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  <div *ngFor="let event of events()" class="bg-white rounded-xl shadow p-4 flex flex-col">
+    <img [src]="event.imageUrl" [alt]="event.name" class="w-full h-40 object-cover rounded-lg mb-3 border" />
+    <div class="flex-1">
+      <h3 class="font-semibold text-lg mb-1">{{event.name}}</h3>
+      <div class="text-xs text-slate-500 mb-2">{{event.date}}</div>
+      <p class="text-slate-600 text-sm mb-2 line-clamp-3">{{event.description}}</p>
+    </div>
+    <div class="flex gap-2 mt-2">
+      <button class="px-3 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs font-medium" (click)="editEvent(event)">Edit</button>
+      <button class="px-3 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200 text-xs font-medium" (click)="deleteEvent(event)">Delete</button>
+    </div>
+  </div>
+</div>

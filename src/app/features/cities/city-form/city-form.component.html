@@ -416,9 +416,9 @@
                    class="w-4 h-4 rounded cursor-pointer pointer-events-none"/>
             <div class="flex-1 min-w-0">
               <p class="font-semibold text-slate-800 truncate">{{ item.name }}</p>
-              <p class="text-xs text-slate-500">{{ item.cat }} • {{ item.desc }}</p>
+              <p class="text-xs text-slate-500">{{ item.category }} • {{ item.description }}</p>
             </div>
-            <img *ngIf="item.img" [src]="item.img" [alt]="item.name" 
+            <img *ngIf="item.imageUrl" [src]="getFoodImageUrl(item)" [alt]="item.name" 
                  class="w-10 h-10 rounded object-cover flex-shrink-0"/>
           </div>
         </div>

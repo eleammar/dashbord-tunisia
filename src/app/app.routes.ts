@@ -1,3 +1,4 @@
+
 import { Routes } from '@angular/router';
 import { AdminShellComponent } from './layout/admin-shell/admin-shell.component';
 
@@ -81,6 +82,40 @@ export const APP_ROUTES: Routes = [
         loadComponent: () =>
           import('./features/food/food.component').then(
             m => m.FoodComponent
+          ),
+      },
+      {
+        path: 'food/add',
+        data: { title: 'Ajouter un plat', breadcrumb: 'Ajouter' },
+        loadComponent: () =>
+          import('./features/food/food-form/food-form.component').then(
+            m => m.FoodFormComponent
+          ),
+      },
+      {
+        path: 'food/:id/edit',
+        data: { title: 'Modifier un plat', breadcrumb: 'Modifier' },
+        loadComponent: () =>
+          import('./features/food/food-form/food-form.component').then(
+            m => m.FoodFormComponent
+          ),
+      },
+
+
+            {
+        path: 'food/popular/add',
+        data: { title: 'Ajouter un plat populaire', breadcrumb: 'Ajouter' },
+        loadComponent: () =>
+          import('./features/food/popular-food-form/popular-food-form.component').then(
+            m => m.PopularFoodFormComponent
+          ),
+      },
+      {
+        path: 'food/popular/:id/edit',
+        data: { title: 'Modifier un plat populaire', breadcrumb: 'Modifier' },
+        loadComponent: () =>
+          import('./features/food/popular-food-form/popular-food-form.component').then(
+            m => m.PopularFoodFormComponent
           ),
       },
       {
@@ -194,4 +229,8 @@ export const APP_ROUTES: Routes = [
       },
     ],
   },
+
+
+
+  
 ];

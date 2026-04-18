@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 //  CITY MODEL — Adapted for backend-tunisia
 // ═══════════════════════════════════════════════════════════════════════════════
-
+import { AllFood } from "./food.model";
 export type TunisiaRegion =
   'Nord' | 'Nord-Est' | 'Nord-Ouest' |
   'Centre' | 'Centre-Est' | 'Centre-Ouest' |
@@ -68,14 +68,7 @@ export interface Experience {
   img: string;
 }
 
-// ── FOOD ITEM ──────────────────────────────────────────────────────────────
-export interface FoodItem {
-  id: string;
-  img: string;
-  cat: string; // category
-  name: string;
-  desc: string;
-}
+
 
 // ── HOTEL ──────────────────────────────────────────────────────────────────
 export interface HotelItem {
@@ -137,7 +130,7 @@ export interface City {
   culture: CultureSection;
   events: CityEvent[];
   experiences: Experience[];
-  food: FoodItem[];
+  food: AllFood[];
   hotels: HotelItem[];
   delegations: Delegation[];
   banner?: BannerData;
