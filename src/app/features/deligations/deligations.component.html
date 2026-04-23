@@ -1,12 +1,13 @@
-<!-- ══════════════════════════════════════════════════
-     ACTIVITIES — Explorer Tunisia Admin
-══════════════════════════════════════════════════ -->
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     DELIGATIONS — Explorer Tunisia Admin (Dashboard Style)
+════════════════════════════════════════════════════════════════════════════ -->
 <div class="space-y-6 animate-fade-in">
   <!-- Fil d'Ariane -->
   <nav class="text-xs text-slate-400 mb-2 flex items-center gap-2">
     <span>Dashboard</span>
     <span class="mx-1">/</span>
-    <span class="text-slate-600 dark:text-slate-200 font-semibold">Activities</span>
+    <span class="text-slate-600 dark:text-slate-200 font-semibold">Delegations</span>
   </nav>
 
   <!-- Header modern -->
@@ -18,8 +19,8 @@
         </svg>
       </span>
       <div>
-        <h1 class="font-display text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Activity Management</h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage all activities and experiences</p>
+        <h1 class="font-display text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Delegation Management</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage all delegations</p>
       </div>
     </div>
     <div class="flex gap-2">
@@ -27,7 +28,7 @@
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
         </svg>
-        New Activity
+        New Delegation
       </button>
     </div>
   </div>
@@ -41,8 +42,8 @@
         </svg>
       </span>
       <div>
-        <div class="text-lg font-bold text-slate-800 dark:text-white">{{ activities.length }}</div>
-        <div class="text-xs text-slate-500 dark:text-slate-400">Total Activities</div>
+        <div class="text-lg font-bold text-slate-800 dark:text-white">{{ delegations.length }}</div>
+        <div class="text-xs text-slate-500 dark:text-slate-400">Total Delegations</div>
       </div>
     </div>
     <div class="flex items-center gap-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-white/[0.08] px-6 py-4 shadow-sm">
@@ -52,7 +53,7 @@
         </svg>
       </span>
       <div>
-        <div class="text-lg font-bold text-slate-800 dark:text-white">{{ filteredActivities.length }}</div>
+        <div class="text-lg font-bold text-slate-800 dark:text-white">{{ filteredDelegations.length }}</div>
         <div class="text-xs text-slate-500 dark:text-slate-400">Showing</div>
       </div>
     </div>
@@ -69,7 +70,7 @@
     </div>
   </div>
 
-  <!-- Search & Filtres -->
+  <!-- Search & Filters -->
   <div class="flex flex-col md:flex-row md:items-end gap-4 bg-slate-50 dark:bg-slate-800 rounded-lg px-6 py-4 border border-slate-200 dark:border-white/[0.08] shadow-sm mb-6">
     <div class="flex-1">
       <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-2">Search</label>
@@ -92,12 +93,12 @@
       <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-2">Type</label>
       <select class="input rounded-md border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500" [(ngModel)]="selectedType" (ngModelChange)="onTypeFilterChange($event)">
         <option value="">Tous les types</option>
-        <option *ngFor="let t of activityTypes" [value]="t">{{ t }}</option>
+        <option *ngFor="let t of delegationTypes" [value]="t">{{ t }}</option>
       </select>
     </div>
   </div>
 
-  <!-- Activities Table -->
+  <!-- Delegations Table -->
   <div class="card p-0 overflow-x-auto">
     <table class="min-w-full divide-y divide-slate-200 dark:divide-white/[0.06]">
       <thead class="bg-slate-50 dark:bg-slate-800">
@@ -105,29 +106,41 @@
           <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Name</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">City</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rating</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Population</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Area</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Image</th>
           <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
         </tr>
       </thead>
       <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-white/[0.04]">
-        <tr *ngFor="let activity of filteredActivities">
-          <td class="px-6 py-4 whitespace-nowrap">{{ activity.name }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">{{ activity.type }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">{{ getCityName(activity.city_id) }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">{{ activity.rating || '-' }}</td>
+        <tr *ngFor="let delegation of filteredDelegations">
+          <td class="px-6 py-4 whitespace-nowrap">{{ delegation.name }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">{{ delegation.type }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">{{ getCityName(delegation.city_id) }}</td>
           <td class="px-6 py-4 whitespace-nowrap">
-            <img *ngIf="activity.img" [src]="activity.img" alt="Image" class="w-12 h-12 rounded object-cover" />
-            <span *ngIf="!activity.img" class="text-slate-400">No image</span>
+            <ng-container *ngIf="delegation.population != null; else noPop">
+              ~{{ delegation.population >= 1000 ? (delegation.population / 1000) + 'K' : delegation.population }}
+            </ng-container>
+            <ng-template #noPop>-</ng-template>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <ng-container *ngIf="delegation.area != null; else noArea">
+              {{ delegation.area }} km<sup>2</sup>
+            </ng-container>
+            <ng-template #noArea>-</ng-template>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <img *ngIf="delegation.img" [src]="delegation.img" alt="Image" class="w-12 h-12 rounded object-cover" />
+            <span *ngIf="!delegation.img" class="text-slate-400">No image</span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-right flex gap-2 justify-end">
-            <button class="btn-xs btn-secondary" (click)="openEditModal(activity)">
+            <button class="btn-xs btn-secondary" (click)="openEditModal(delegation)">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6 6M3 17v4h4l12-12a2 2 0 0 0-2.828-2.828l-12 12z" />
               </svg>
               Edit
             </button>
-            <button class="btn-xs btn-danger" (click)="deleteActivity(activity.id)">
+            <button class="btn-xs btn-danger" (click)="deleteDelegation(delegation.id)">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -135,18 +148,18 @@
             </button>
           </td>
         </tr>
-        <tr *ngIf="activities.length === 0">
-          <td colspan="6" class="px-6 py-8 text-center text-slate-400">No activities found.</td>
+        <tr *ngIf="delegations.length === 0">
+          <td colspan="7" class="px-6 py-8 text-center text-slate-400">No delegations found.</td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- Add/Edit Modal (pseudo, to be implemented in TS) -->
+  <!-- Add/Edit Modal -->
   <div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
     <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-md p-6">
-      <h2 class="text-lg font-bold mb-4">{{ editMode ? 'Edit Activity' : 'Add Activity' }}</h2>
-      <form (ngSubmit)="saveActivity()" class="space-y-4">
+      <h2 class="text-lg font-bold mb-4">{{ editMode ? 'Edit Delegation' : 'Add Delegation' }}</h2>
+      <form (ngSubmit)="saveDelegation()" class="space-y-4">
         <div>
           <label class="block text-sm font-medium mb-1">Name</label>
           <input class="input w-full" [(ngModel)]="form.name" name="name" required />
@@ -155,7 +168,7 @@
           <label class="block text-sm font-medium mb-1">Type</label>
           <select class="input w-full" [(ngModel)]="form.type" name="type" required>
             <option value="" disabled selected>Choose a type</option>
-            <option *ngFor="let t of activityTypes" [value]="t">{{ t }}</option>
+            <option *ngFor="let t of delegationTypes" [value]="t">{{ t }}</option>
           </select>
         </div>
         <div>
@@ -166,12 +179,57 @@
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Rating</label>
-          <input class="input w-full" type="number" [(ngModel)]="form.rating" name="rating" min="0" max="5" step="0.1" />
+          <label class="block text-sm font-medium mb-1">Population</label>
+          <input class="input w-full" type="number" [(ngModel)]="form.population" name="population" min="0" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Area</label>
+          <input class="input w-full" type="number" [(ngModel)]="form.area" name="area" min="0" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Image URL</label>
           <input class="input w-full" [(ngModel)]="form.img" name="img" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Description</label>
+          <textarea class="input w-full" [(ngModel)]="form.description" name="description" rows="2"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Founded (siècle ou année)</label>
+          <select class="input w-full" [(ngModel)]="form.founded" name="founded_select">
+            <option value="">Choisir un siècle</option>
+            <option value="VIIe siècle">VIIe siècle</option>
+            <option value="VIIIe siècle">VIIIe siècle</option>
+            <option value="IXe siècle">IXe siècle</option>
+            <option value="Xe siècle">Xe siècle</option>
+            <option value="XIe siècle">XIe siècle</option>
+            <option value="XIIe siècle">XIIe siècle</option>
+            <option value="XIIIe siècle">XIIIe siècle</option>
+            <option value="XIVe siècle">XIVe siècle</option>
+            <option value="XVe siècle">XVe siècle</option>
+            <option value="XVIe siècle">XVIe siècle</option>
+            <option value="XVIIe siècle">XVIIe siècle</option>
+            <option value="XVIIIe siècle">XVIIIe siècle</option>
+            <option value="XIXe siècle">XIXe siècle</option>
+            <option value="XXe siècle">XXe siècle</option>
+            <option value="XXIe siècle">XXIe siècle</option>
+            <option value="autre">Autre...</option>
+          </select>
+          <input *ngIf="form.founded === 'autre'" class="input w-full mt-2" [(ngModel)]="form.founded" name="founded_custom" placeholder="Entrer une année ou texte..." />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Notable</label>
+          <input class="input w-full" [(ngModel)]="form.notable" name="notable" type="text" />
+        </div>
+        <div class="flex gap-2">
+          <div class="flex-1">
+            <label class="block text-sm font-medium mb-1">Latitude</label>
+            <input class="input w-full" type="number" step="any" [(ngModel)]="form.lat" name="lat" />
+          </div>
+          <div class="flex-1">
+            <label class="block text-sm font-medium mb-1">Longitude</label>
+            <input class="input w-full" type="number" step="any" [(ngModel)]="form.lng" name="lng" />
+          </div>
         </div>
         <div class="flex justify-end gap-2 mt-6">
           <button type="button" class="btn-md btn-secondary" (click)="closeModal()">Cancel</button>

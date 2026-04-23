@@ -1,4 +1,5 @@
 
+
 import { Routes } from '@angular/router';
 import { AdminShellComponent } from './layout/admin-shell/admin-shell.component';
 
@@ -76,6 +77,7 @@ export const APP_ROUTES: Routes = [
             m => m.ActivitiesComponent
           ),
       },
+     
       {
         path: 'food',
         data: { title: 'Nourriture', icon: '🍕', breadcrumb: 'Nourriture' },
@@ -99,6 +101,19 @@ export const APP_ROUTES: Routes = [
           import('./features/food/food-form/food-form.component').then(
             m => m.FoodFormComponent
           ),
+      },
+
+      {
+        path: 'food/regions/add',
+        data: { title: 'Ajouter une région', breadcrumb: 'Ajouter' },
+        loadComponent: () =>
+          import('./features/food/region-form/region-form.component').then(m => m.RegionFormComponent),
+      },
+      {
+        path: 'food/regions/:id/edit',
+        data: { title: 'Modifier une région', breadcrumb: 'Modifier' },
+        loadComponent: () =>
+         import('./features/food/region-form/region-form.component').then(m => m.RegionFormComponent),
       },
 
 
@@ -219,18 +234,17 @@ export const APP_ROUTES: Routes = [
           },
         ],
       },
-      {
-        path: '**',
+       {
+        path: 'deligations',
+        data: { title: 'Délégations', icon: '🏛️', breadcrumb: 'Délégations' },
         loadComponent: () =>
-          import('./features/not-found/not-found.component').then(
-            m => m.NotFoundComponent
+          import('./features/deligations/deligations.component').then(
+            m => m.DeligationsComponent
           ),
-        data: { breadcrumb: '404' },
       },
     ],
   },
-
-
-
-  
 ];
+
+// Move these two routes inside the children array above, after the other food routes
+// (This is a code patch, so the actual move is done above)

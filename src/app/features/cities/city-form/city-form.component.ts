@@ -15,7 +15,7 @@ import { EventService } from '../../../core/services/event.service';
 import { FoodService } from '../../../core/services/food.service';
 import { HotelService } from '../../../core/services/hotel.service';
 import { ActivityService } from '../../../core/services/activity.service';
-import { DelegationService } from '../../../core/services/delegation.service';
+import { DelegationsService } from '../../../core/services/delegation.service';
 import { AllFood } from '../../../core/models/food.model';
 
 type FormTab =
@@ -45,7 +45,7 @@ export class CityFormComponent implements OnInit {
   private foodSvc = inject(FoodService);
   private hotelSvc = inject(HotelService);
   private activitySvc = inject(ActivityService);
-  private delegationSvc = inject(DelegationService);
+  private delegationSvc = inject(DelegationsService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 

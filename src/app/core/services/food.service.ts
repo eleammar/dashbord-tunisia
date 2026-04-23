@@ -73,7 +73,11 @@ export class FoodService {
 
   private mapRegion(raw: any): FoodRegion {
     const imgs = raw?.images ?? raw?.image_url ?? [];
-    return { ...raw, images: imgs } as FoodRegion;
+    // Normalize each image URL
+    const normalizedImages = Array.isArray(imgs)
+      ? imgs.map((img: string) => this.normalizeImageUrl(img))
+      : [];
+    return { ...raw, images: normalizedImages } as FoodRegion;
   }
 
   private mapEvent(raw: any): FoodEvent {
@@ -321,7 +325,7 @@ export class FoodService {
     );
   }
 
-  createRegion(payload: Partial<FoodRegion>): Observable<FoodRegion> {
+  createRegion(payload: Partial<FoodRegion> | FormData): Observable<FoodRegion> {
     return this.http.post<FoodRegion>(`${this.apiUrl}/regions`, payload).pipe(
       map((raw: any) => this.mapRegion(raw)),
       tap(created => this.regionsSubject.next([...this.regionsSubject.value, created])),
@@ -329,7 +333,7 @@ export class FoodService {
     );
   }
 
-  updateRegion(id: number, payload: Partial<FoodRegion>): Observable<FoodRegion> {
+  updateRegion(id: number, payload: Partial<FoodRegion> | FormData): Observable<FoodRegion> {
     return this.http.put<FoodRegion>(`${this.apiUrl}/regions/${id}`, payload).pipe(
       map((raw: any) => this.mapRegion(raw)),
       tap(updated => {
