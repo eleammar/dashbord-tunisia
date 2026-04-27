@@ -1,0 +1,177 @@
+<!-- ══════════════════════════════════════════════════
+		 CULTURE — Explorer Tunisia Admin
+═══════════════════════════════════════════════════ -->
+<div class="space-y-6 animate-fade-in">
+	<!-- Fil d'Ariane -->
+	<nav class="text-xs text-slate-400 mb-2 flex items-center gap-2">
+		<span>Dashboard</span>
+		<span class="mx-1">/</span>
+		<span class="text-slate-600 dark:text-slate-200 font-semibold">Culture</span>
+	</nav>
+
+	<!-- Header modern -->
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
+		<div class="flex items-center gap-3">
+			<span class="inline-flex items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-200 w-12 h-12 text-2xl">
+				<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+				</svg>
+			</span>
+			<div>
+				<h1 class="font-display text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Culture Management</h1>
+				<p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage all culture items</p>
+			</div>
+		</div>
+		<div class="flex gap-2">
+			<button class="btn-md btn-primary" (click)="openAddModal()">
+				<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+				</svg>
+				New Culture
+			</button>
+		</div>
+	</div>
+
+	<!-- Stat cards -->
+	<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2">
+		<div class="flex items-center gap-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-white/[0.08] px-6 py-4 shadow-sm">
+			<span class="inline-flex items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-200 w-10 h-10">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+				</svg>
+			</span>
+			<div>
+				<div class="text-lg font-bold text-slate-800 dark:text-white">{{ cultureItems.length }}</div>
+				<div class="text-xs text-slate-500 dark:text-slate-400">Total Culture Items</div>
+			</div>
+		</div>
+		<div class="flex items-center gap-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-white/[0.08] px-6 py-4 shadow-sm">
+			<span class="inline-flex items-center justify-center rounded-lg bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-200 w-10 h-10">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+				</svg>
+			</span>
+			<div>
+				<div class="text-lg font-bold text-slate-800 dark:text-white">{{ filteredCultureItems.length }}</div>
+				<div class="text-xs text-slate-500 dark:text-slate-400">Showing</div>
+			</div>
+		</div>
+		<div class="flex items-center gap-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-white/[0.08] px-6 py-4 shadow-sm">
+			<span class="inline-flex items-center justify-center rounded-lg bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-200 w-10 h-10">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M3 12h18M3 18h18" />
+				</svg>
+			</span>
+			<div>
+				<div class="text-lg font-bold text-slate-800 dark:text-white">{{ activeFiltersCount }}</div>
+				<div class="text-xs text-slate-500 dark:text-slate-400">Active Filters</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Search & Filters -->
+	<div class="flex flex-col md:flex-row md:items-end gap-4 bg-slate-50 dark:bg-slate-800 rounded-lg px-6 py-4 border border-slate-200 dark:border-white/[0.08] shadow-sm mb-6">
+		<div class="flex-1">
+			<label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-2">Search</label>
+			<div class="relative">
+				<input type="text" class="input w-full pl-10 rounded-md border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500" placeholder="Search by title or label..." [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange($event)" />
+				<svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+					<circle cx="11" cy="11" r="8" />
+					<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-2-2" />
+				</svg>
+			</div>
+		</div>
+		<div class="flex flex-col min-w-[180px]">
+			<label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-2">Ville</label>
+			<select class="input rounded-md border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500" [(ngModel)]="selectedCity" (ngModelChange)="onCityFilterChange($event)">
+				<option value="">Toutes les villes</option>
+				<option *ngFor="let city of cities" [value]="city.id">{{ city.name }}</option>
+			</select>
+		</div>
+	</div>
+
+	<!-- Culture Table -->
+	<div class="card p-0 overflow-x-auto">
+		<table class="min-w-full divide-y divide-slate-200 dark:divide-white/[0.06]">
+			<thead class="bg-slate-50 dark:bg-slate-800">
+				<tr>
+					<th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Title</th>
+					<th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Label</th>
+					<th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">City</th>
+					<th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rating</th>
+					<th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Image</th>
+					<th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
+				</tr>
+			</thead>
+			<tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-white/[0.04]">
+				<tr *ngFor="let item of filteredCultureItems">
+					<td class="px-6 py-4 whitespace-nowrap">{{ item.title }}</td>
+					<td class="px-6 py-4 whitespace-nowrap">{{ item.label || '-' }}</td>
+					<td class="px-6 py-4 whitespace-nowrap">{{ getCityName(item.city_id) }}</td>
+					<td class="px-6 py-4 whitespace-nowrap">{{ item.rating || '-' }}</td>
+					<td class="px-6 py-4 whitespace-nowrap">
+						<img *ngIf="item.img" [src]="item.img" alt="Image" class="w-12 h-12 rounded object-cover" />
+						<span *ngIf="!item.img" class="text-slate-400">No image</span>
+					</td>
+					<td class="px-6 py-4 whitespace-nowrap text-right flex gap-2 justify-end">
+						<button class="btn-xs btn-secondary" (click)="openEditModal(item)">
+							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6 6M3 17v4h4l12-12a2 2 0 0 0-2.828-2.828l-12 12z" />
+							</svg>
+							Edit
+						</button>
+						<button class="btn-xs btn-danger" (click)="deleteCultureItem(item.id)">
+							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+							</svg>
+							Delete
+						</button>
+					</td>
+				</tr>
+				<tr *ngIf="cultureItems.length === 0">
+					<td colspan="6" class="px-6 py-8 text-center text-slate-400">No culture items found.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<!-- Add/Edit Modal -->
+	<div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+		<div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg w-full max-w-md p-6">
+			<h2 class="text-lg font-bold mb-4">{{ editMode ? 'Edit Culture' : 'Add Culture' }}</h2>
+			<form (ngSubmit)="saveCultureItem()" class="space-y-4">
+				<div>
+					<label class="block text-sm font-medium mb-1">Title</label>
+					<input class="input w-full" [(ngModel)]="form.title" name="title" required />
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Label</label>
+					<input class="input w-full" [(ngModel)]="form.label" name="label" />
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">City</label>
+					<select class="input w-full" [(ngModel)]="form.city_id" name="city_id" required>
+						<option value="" disabled selected>Choose a city</option>
+						<option *ngFor="let city of cities" [value]="city.id">{{ city.name }}</option>
+					</select>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Rating</label>
+					<input class="input w-full" type="number" [(ngModel)]="form.rating" name="rating" min="0" max="5" step="0.1" />
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Image URL</label>
+					<input class="input w-full" [(ngModel)]="form.img" name="img" />
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Description</label>
+					<textarea class="input w-full" [(ngModel)]="form.description" name="description" rows="2"></textarea>
+				</div>
+				<div class="flex justify-end gap-2 mt-6">
+					<button type="button" class="btn-md btn-secondary" (click)="closeModal()">Cancel</button>
+					<button type="submit" class="btn-md btn-primary">{{ editMode ? 'Update' : 'Add' }}</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

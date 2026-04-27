@@ -36,19 +36,10 @@ export interface AboutSection {
 }
 
 // ── CULTURE SECTION ────────────────────────────────────────────────────────
-export interface CultureItem {
-  id: string;
-  label: string;
-  title: string;
-  description: string;
-  img: string;
-  rating: number;
-}
-
 export interface CultureSection {
   title: string;
   country: string;
-  items: CultureItem[];
+  items: any[];
 }
 
 // ── EVENT ──────────────────────────────────────────────────────────────────

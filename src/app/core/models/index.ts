@@ -7,9 +7,8 @@
 export * from './tag.model';
 export * from './city.model';
 export * from './activity.model';
-export * from './hotel.model';
+
 export * from './food.model';
-export * from './event.model';
+
 export * from './culture.model';
 export * from './questionnaire.model';
-export * from './recommendation.model';

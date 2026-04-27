@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-// Interface correspondant à la table experiences (selon ton backend)
+
 export interface Experience {
   id: number;
   city_id: number | null;
@@ -31,7 +31,7 @@ export interface ApiItemResponse<T> {
 export class ActivityService {
   private http = inject(HttpClient);
 
-   private baseUrl = 'http://localhost:5000/api/experiences'; //BACKEND URL
+   private baseUrl = 'http://localhost:5000/api/experiences';
 
   // Liste avec pagination (limit, offset)
   getAll(limit = 20, offset = 0): Observable<ApiListResponse<Experience>> {
