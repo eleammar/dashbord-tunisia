@@ -601,43 +601,7 @@
       </div>
 
       <div class="px-6 py-4 space-y-3">
-        <div *ngFor="let tag of topTags().slice(0, 8); let i = index"
-             class="flex items-center gap-3 group">
-
-          <!-- Rank number -->
-          <span class="text-xs font-mono text-slate-300
-                        dark:text-slate-700 w-4 flex-shrink-0 text-right">
-            {{ i + 1 }}
-          </span>
-
-          <!-- Tag dot + name -->
-          <div class="flex items-center gap-2 flex-shrink-0 min-w-[100px]">
-            <span class="w-2 h-2 rounded-full flex-shrink-0"
-                  [style.background-color]="tag.color"></span>
-            <span class="text-sm font-medium
-                          text-slate-700 dark:text-slate-300 truncate">
-              {{ tag.name }}
-            </span>
-          </div>
-
-          <!-- Progress bar -->
-          <div class="flex-1 h-1.5
-                      bg-slate-100 dark:bg-white/[0.06]
-                      rounded-full overflow-hidden">
-            <div class="h-full rounded-full transition-all duration-700"
-                 [style.width.%]="(tag.usageCount / 35) * 100"
-                 [style.background-color]="tag.color">
-            </div>
-          </div>
-
-          <!-- Count -->
-          <span class="text-xs font-semibold
-                        text-slate-500 dark:text-slate-400
-                        w-6 text-right flex-shrink-0">
-            {{ tag.usageCount }}
-          </span>
-
-        </div>
+       
       </div>
 
       <!-- Tag cloud preview -->
@@ -648,17 +612,7 @@
           Quick filter
         </p>
         <div class="flex flex-wrap gap-2">
-          <span *ngFor="let tag of topTags().slice(0, 10)"
-                class="inline-flex items-center gap-1.5
-                        text-xs font-medium rounded-md
-                        px-2.5 py-1.5 cursor-pointer
-                        border transition-all duration-150
-                        hover:opacity-80"
-                [style.background-color]="tag.bgColor || '#f0f5ff'"
-                [style.border-color]="tag.color + '40'"
-                [style.color]="tag.color">
-            {{ tag.name }}
-          </span>
+       
         </div>
       </div>
 

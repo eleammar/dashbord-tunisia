@@ -15,6 +15,7 @@ export interface PopularFood {
 }
 
 export interface AllFood {
+  city_id: any;
   id: number;
   name: string;
   category: string;

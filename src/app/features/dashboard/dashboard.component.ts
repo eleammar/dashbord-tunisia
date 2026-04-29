@@ -60,8 +60,7 @@ export class DashboardComponent implements OnInit {
 
   // ── Computed from services ─────────────────────────────
   readonly cities     = this.cityService.cities;
-  readonly tags       = this.tagService.tags;
-  readonly topTags    = this.tagService.topTags;
+
 
   // ── KPI Cards ──────────────────────────────────────────
   readonly kpiCards: KpiCard[] = [
@@ -161,7 +160,7 @@ export class DashboardComponent implements OnInit {
 
     // Load services data
     this.cityService.getAll().subscribe();
-    this.tagService.getAll().subscribe();
+    
   }
 
   // ── Helpers ────────────────────────────────────────────
