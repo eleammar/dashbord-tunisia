@@ -1,3 +1,570 @@
-<div class="p-6">
-  <h1>Questionnaire List</h1>
+<div class="min-h-screen bg-slate-50 p-6 space-y-6">
+
+  <!-- ══════════════════════════════════════════
+       HEADER
+  ═══════════════════════════════════════════ -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-3 mb-1">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center shadow">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-900">Questionnaire Builder</h1>
+      </div>
+      <p class="text-sm text-slate-500 ml-13">Gérez les étapes et les options du questionnaire d'onboarding</p>
+    </div>
+    <button (click)="openCreateStep()"
+      class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-violet-600
+             hover:from-blue-700 hover:to-violet-700 text-white text-sm font-semibold
+             rounded-xl shadow-md shadow-blue-200 transition-all">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+      </svg>
+      Ajouter une étape
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TABS
+  ═══════════════════════════════════════════ -->
+  <div class="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm w-fit">
+    <a routerLink="/questionnaire"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold
+             bg-blue-600 text-white shadow-sm">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/>
+      </svg>
+      Builder
+    </a>
+    <a routerLink="/questionnaire/builder"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold
+             text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+      Réponses
+    </a>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       KPI CARDS
+  ═══════════════════════════════════════════ -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- Total Steps -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4 shadow-sm">
+      <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-slate-900">{{ loading() ? '—' : steps().length }}</p>
+        <p class="text-xs text-slate-500 font-medium">Étapes totales</p>
+      </div>
+    </div>
+    <!-- Total Options -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4 shadow-sm">
+      <div class="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center">
+        <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9 12h6m-3-3v6M19 10l-7 7-4-4-4 4"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-slate-900">{{ loading() ? '—' : totalOptions() }}</p>
+        <p class="text-xs text-slate-500 font-medium">Options totales</p>
+      </div>
+    </div>
+    <!-- Multi-select -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4 shadow-sm">
+      <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
+        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-slate-900">{{ loading() ? '—' : multiCount() }}</p>
+        <p class="text-xs text-slate-500 font-medium">Multi-sélection</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TOOLBAR
+  ═══════════════════════════════════════════ -->
+  <div *ngIf="!loading() && steps().length > 0"
+    class="flex items-center justify-between bg-white rounded-xl border border-slate-200 px-4 py-2.5 shadow-sm">
+    <p class="text-sm text-slate-500">
+      <span class="font-semibold text-slate-700">{{ steps().length }}</span> étapes
+      · <span class="font-semibold text-slate-700">{{ totalOptions() }}</span> options
+    </p>
+    <div class="flex gap-2">
+      <button (click)="expandAll()"
+        class="text-xs text-slate-500 hover:text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+        Tout ouvrir
+      </button>
+      <button (click)="collapseAll()"
+        class="text-xs text-slate-500 hover:text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors font-medium">
+        Tout fermer
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       LOADING SKELETON
+  ═══════════════════════════════════════════ -->
+  <div *ngIf="loading()" class="space-y-3">
+    <div *ngFor="let _ of [1,2,3]"
+      class="bg-white rounded-2xl border border-slate-200 p-5 animate-pulse">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl bg-slate-200"></div>
+        <div class="flex-1 space-y-2">
+          <div class="h-4 bg-slate-200 rounded w-1/3"></div>
+          <div class="h-3 bg-slate-100 rounded w-1/2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       EMPTY STATE
+  ═══════════════════════════════════════════ -->
+  <div *ngIf="!loading() && steps().length === 0"
+    class="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-16 text-center">
+    <div class="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M12 11v6m-3-3h6"/>
+      </svg>
+    </div>
+    <h3 class="text-lg font-semibold text-slate-700 mb-1">Aucune étape</h3>
+    <p class="text-sm text-slate-400 mb-5">Créez la première étape du questionnaire</p>
+    <button (click)="openCreateStep()"
+      class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+      </svg>
+      Créer une étape
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEPS ACCORDION
+  ═══════════════════════════════════════════ -->
+  <div class="space-y-3">
+    <div *ngFor="let step of steps(); let i = index"
+      class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden
+             transition-shadow hover:shadow-md">
+
+      <!-- Step Header -->
+      <div class="flex items-center gap-4 p-5 cursor-pointer select-none border-l-4"
+        [ngClass]="color(i).border"
+        (click)="toggle(step.id)">
+
+        <!-- Step index badge -->
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+          [ngClass]="color(i).dot">
+          {{ i + 1 }}
+        </div>
+
+        <!-- Title & meta -->
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2 mb-0.5">
+            <span class="font-semibold text-slate-800 text-sm">{{ step.title }}</span>
+            <span class="text-xs px-2 py-0.5 rounded-full font-mono font-medium bg-slate-100 text-slate-500">
+              {{ step.id }}
+            </span>
+            <span *ngIf="step.multi"
+              class="text-xs px-2 py-0.5 rounded-full font-medium"
+              [ngClass]="color(i).badge">
+              Multi-sélection
+            </span>
+          </div>
+          <p *ngIf="step.description" class="text-xs text-slate-400 truncate">{{ step.description }}</p>
+        </div>
+
+        <!-- Options count -->
+        <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full flex-shrink-0">
+          {{ step.options?.length ?? 0 }} option{{ (step.options?.length ?? 0) !== 1 ? 's' : '' }}
+        </span>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-1 flex-shrink-0" (click)="$event.stopPropagation()">
+          <button (click)="openEditStep(step)"
+            class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400
+                   hover:text-blue-600 hover:bg-blue-50 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+          </button>
+          <button (click)="askDeleteStep(step)"
+            class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400
+                   hover:text-red-500 hover:bg-red-50 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Chevron -->
+        <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 flex-shrink-0"
+          [class.rotate-180]="isOpen(step.id)"
+          fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+
+      <!-- Options Panel -->
+      <div *ngIf="isOpen(step.id)" class="border-t border-slate-100 bg-slate-50/50 p-5">
+
+        <!-- Options grid -->
+        <div *ngIf="(step.options?.length ?? 0) > 0"
+          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-4">
+          <div *ngFor="let opt of step.options"
+            class="group bg-white rounded-xl border border-slate-200 p-4 text-center
+                   hover:border-blue-300 hover:shadow-md transition-all relative">
+
+            <!-- Option actions (visible on hover) -->
+            <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button (click)="openEditOption(opt, step.id)"
+                class="w-6 h-6 flex items-center justify-center rounded-md bg-white border border-slate-200
+                       text-slate-400 hover:text-blue-600 hover:border-blue-300 shadow-sm transition-colors">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </button>
+              <button (click)="askDeleteOption(opt, step.id)"
+                class="w-6 h-6 flex items-center justify-center rounded-md bg-white border border-slate-200
+                       text-slate-400 hover:text-red-500 hover:border-red-300 shadow-sm transition-colors">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Icon -->
+            <div class="text-3xl mb-2 leading-none">{{ opt.icon || '🔘' }}</div>
+            <!-- Title -->
+            <p class="text-xs font-semibold text-slate-700 leading-tight mb-1 line-clamp-2">{{ opt.title }}</p>
+            <!-- Subtitle -->
+            <p *ngIf="opt.subtitle" class="text-[10px] text-slate-400 leading-tight line-clamp-2">{{ opt.subtitle }}</p>
+            <!-- ID badge -->
+            <span class="inline-block mt-2 text-[10px] font-mono bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded">
+              {{ opt.id }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Empty options state -->
+        <div *ngIf="(step.options?.length ?? 0) === 0" class="text-center py-6 mb-4">
+          <p class="text-sm text-slate-400">Aucune option pour cette étape</p>
+        </div>
+
+        <!-- Add option button -->
+        <button (click)="openCreateOption(step.id)"
+          class="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-slate-300
+                 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50
+                 text-slate-500 text-sm font-medium rounded-xl transition-all w-full justify-center">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+          Ajouter une option
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MODAL — CREATE / EDIT STEP
+═══════════════════════════════════════════════════════ -->
+<div *ngIf="showStepModal()"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-slate-200">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+          <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+          </svg>
+        </div>
+        <h2 class="text-base font-bold text-slate-800">
+          {{ stepMode() === 'create' ? 'Nouvelle étape' : 'Modifier l\'étape' }}
+        </h2>
+      </div>
+      <button (click)="showStepModal.set(false)"
+        class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="px-6 py-5 space-y-4">
+
+      <!-- Title -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+          Titre <span class="text-red-500">*</span>
+        </label>
+        <input type="text" placeholder="ex : Quelle ambiance ?"
+          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-slate-50 text-sm
+                 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          [ngModel]="stepForm().title"
+          (ngModelChange)="onStepTitleInput($event)" />
+      </div>
+
+      <!-- ID -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+          ID (slug) <span class="text-red-500">*</span>
+        </label>
+        <input type="text" placeholder="ex : morning-vibe"
+          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-slate-50 text-sm font-mono
+                 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          [ngModel]="stepForm().id"
+          [readonly]="stepMode() === 'edit'"
+          [class.opacity-60]="stepMode() === 'edit'"
+          (ngModelChange)="setStep('id', $event)" />
+        <p class="text-xs text-slate-400 mt-1">Généré automatiquement depuis le titre</p>
+      </div>
+
+      <!-- Description + Order index row -->
+      <div class="flex gap-3">
+        <div class="flex-1">
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Description</label>
+          <textarea rows="2" placeholder="Description optionnelle..."
+            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-slate-50 text-sm resize-none
+                   focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            [ngModel]="stepForm().description"
+            (ngModelChange)="setStep('description', $event)"></textarea>
+        </div>
+        <div class="w-24">
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Ordre <span class="text-red-500">*</span></label>
+          <input type="number" min="1"
+            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-slate-50 text-sm text-center
+                   focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            [ngModel]="stepForm().order_index"
+            (ngModelChange)="setStepOrder(+$event)" />
+        </div>
+      </div>
+
+      <!-- Multi-select toggle -->
+      <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+        <div>
+          <p class="text-sm font-medium text-slate-700">Multi-sélection</p>
+          <p class="text-xs text-slate-400">L'utilisateur peut choisir plusieurs options</p>
+        </div>
+        <button type="button"
+          (click)="setStepMulti(!stepForm().multi)"
+          class="relative w-11 h-6 rounded-full transition-colors duration-200"
+          [class.bg-blue-600]="stepForm().multi"
+          [class.bg-slate-300]="!stepForm().multi">
+          <span class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200"
+            [class.translate-x-5]="stepForm().multi"></span>
+        </button>
+      </div>
+
+      <!-- Error -->
+      <p *ngIf="stepError()" class="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{{ stepError() }}</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex gap-3 px-6 py-4 border-t border-slate-100">
+      <button (click)="showStepModal.set(false)"
+        class="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 text-sm font-medium
+               rounded-xl hover:bg-slate-50 transition-colors">
+        Annuler
+      </button>
+      <button (click)="saveStep()" [disabled]="saving()"
+        class="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold
+               rounded-xl transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+        <svg *ngIf="saving()" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        {{ saving() ? 'Sauvegarde...' : (stepMode() === 'create' ? 'Créer' : 'Enregistrer') }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MODAL — CREATE / EDIT OPTION
+═══════════════════════════════════════════════════════ -->
+<div *ngIf="showOptionModal()"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-slate-200">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+          <span class="text-lg leading-none">{{ optionForm().icon || '🔘' }}</span>
+        </div>
+        <h2 class="text-base font-bold text-slate-800">
+          {{ optionMode() === 'create' ? 'Nouvelle option' : 'Modifier l\'option' }}
+        </h2>
+      </div>
+      <button (click)="showOptionModal.set(false)"
+        class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="px-6 py-5 space-y-4">
+
+      <!-- Étape assignée (readonly info) -->
+      <div class="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
+        <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p class="text-xs text-slate-500">
+          Étape : <span class="font-semibold font-mono text-slate-700">{{ optionForm().step_id }}</span>
+        </p>
+      </div>
+
+      <!-- Icon -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Icône (emoji)</label>
+        <input type="text" placeholder="ex : 🏖️"
+          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-slate-50 text-lg
+                 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          [ngModel]="optionForm().icon"
+          (ngModelChange)="setOption('icon', $event)" />
+      </div>
+
+      <!-- Title -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+          Titre <span class="text-red-500">*</span>
+        </label>
+        <input type="text" placeholder="ex : Vivre une aventure"
+          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-slate-50 text-sm
+                 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          [ngModel]="optionForm().title"
+          (ngModelChange)="onOptionTitleInput($event)" />
+      </div>
+
+      <!-- ID -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+          ID (slug) <span class="text-red-500">*</span>
+        </label>
+        <input type="text" placeholder="ex : adventure"
+          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-slate-50 text-sm font-mono
+                 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          [ngModel]="optionForm().id"
+          [readonly]="optionMode() === 'edit'"
+          [class.opacity-60]="optionMode() === 'edit'"
+          (ngModelChange)="setOption('id', $event)" />
+      </div>
+
+      <!-- Subtitle -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Sous-titre</label>
+        <input type="text" placeholder="ex : Désert, mer ou randonnée"
+          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl bg-slate-50 text-sm
+                 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          [ngModel]="optionForm().subtitle"
+          (ngModelChange)="setOption('subtitle', $event)" />
+      </div>
+
+      <!-- Error -->
+      <p *ngIf="optionError()" class="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{{ optionError() }}</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex gap-3 px-6 py-4 border-t border-slate-100">
+      <button (click)="showOptionModal.set(false)"
+        class="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 text-sm font-medium
+               rounded-xl hover:bg-slate-50 transition-colors">
+        Annuler
+      </button>
+      <button (click)="saveOption()" [disabled]="saving()"
+        class="flex-1 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold
+               rounded-xl transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+        <svg *ngIf="saving()" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        {{ saving() ? 'Sauvegarde...' : (optionMode() === 'create' ? 'Créer' : 'Enregistrer') }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MODAL — DELETE STEP
+═══════════════════════════════════════════════════════ -->
+<div *ngIf="showDeleteStep()"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm border border-slate-200 p-6 text-center">
+    <div class="w-14 h-14 rounded-2xl bg-red-100 flex items-center justify-center mx-auto mb-4">
+      <svg class="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+      </svg>
+    </div>
+    <h3 class="text-base font-bold text-slate-800 mb-1">Supprimer l'étape ?</h3>
+    <p class="text-sm text-slate-500 mb-1">
+      <span class="font-semibold text-slate-700">{{ pendingStepDelete()?.title }}</span>
+    </p>
+    <p class="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2 mb-5">
+      Toutes les options de cette étape seront aussi supprimées.
+    </p>
+    <div class="flex gap-3">
+      <button (click)="showDeleteStep.set(false)"
+        class="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-50 transition-colors">
+        Annuler
+      </button>
+      <button (click)="confirmDeleteStep()" [disabled]="deleting()"
+        class="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold
+               rounded-xl transition-colors disabled:opacity-60">
+        {{ deleting() ? 'Suppression...' : 'Supprimer' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MODAL — DELETE OPTION
+═══════════════════════════════════════════════════════ -->
+<div *ngIf="showDeleteOption()"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm border border-slate-200 p-6 text-center">
+    <div class="text-4xl mb-3">{{ pendingOptDelete()?.option?.icon || '🔘' }}</div>
+    <h3 class="text-base font-bold text-slate-800 mb-1">Supprimer cette option ?</h3>
+    <p class="text-sm text-slate-500 mb-5">
+      <span class="font-semibold text-slate-700">{{ pendingOptDelete()?.option?.title }}</span>
+    </p>
+    <div class="flex gap-3">
+      <button (click)="showDeleteOption.set(false)"
+        class="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-50 transition-colors">
+        Annuler
+      </button>
+      <button (click)="confirmDeleteOption()" [disabled]="deleting()"
+        class="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold
+               rounded-xl transition-colors disabled:opacity-60">
+        {{ deleting() ? 'Suppression...' : 'Supprimer' }}
+      </button>
+    </div>
+  </div>
 </div>

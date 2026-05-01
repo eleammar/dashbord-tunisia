@@ -1,0 +1,268 @@
+<div class="min-h-screen bg-slate-50 p-6 space-y-6">
+
+  <!-- ═══════════════ HEADER ═══════════════ -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-pink-500 flex items-center justify-center shadow">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">Réponses Utilisateurs</h1>
+        <p class="text-sm text-slate-500">Consultez les réponses au questionnaire d'onboarding</p>
+      </div>
+    </div>
+    <button (click)="load()"
+      class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl
+             text-sm font-medium text-slate-600 hover:bg-slate-50 shadow-sm transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+      Actualiser
+    </button>
+  </div>
+
+  <!-- ═══════════════ TABS ═══════════════ -->
+  <div class="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm w-fit">
+    <a routerLink="/questionnaire"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold
+             text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/>
+      </svg>
+      Builder
+    </a>
+    <a routerLink="/questionnaire/builder"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold
+             bg-violet-600 text-white shadow-sm">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+      Réponses
+    </a>
+  </div>
+
+  <!-- ═══════════════ KPI CARDS ═══════════════ -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4 shadow-sm">
+      <div class="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center flex-shrink-0">
+        <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-slate-900">{{ loading() ? '—' : totalUsers() }}</p>
+        <p class="text-xs text-slate-500 font-medium">Utilisateurs ayant répondu</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4 shadow-sm">
+      <div class="w-12 h-12 rounded-xl bg-pink-50 flex items-center justify-center flex-shrink-0">
+        <svg class="w-6 h-6 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-slate-900">{{ loading() ? '—' : totalAnswers() }}</p>
+        <p class="text-xs text-slate-500 font-medium">Options choisies (total)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ SEARCH ═══════════════ -->
+  <div class="relative">
+    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+    </svg>
+    <input type="text" placeholder="Rechercher par ID utilisateur..."
+      class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm
+             shadow-sm focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20"
+      [ngModel]="search()" (ngModelChange)="search.set($event)" />
+  </div>
+
+  <!-- ═══════════════ LOADING ═══════════════ -->
+  <div *ngIf="loading()" class="space-y-3">
+    <div *ngFor="let _ of [1,2,3,4,5]"
+      class="bg-white rounded-2xl border border-slate-200 p-4 animate-pulse flex items-center gap-4">
+      <div class="w-10 h-10 rounded-full bg-slate-200"></div>
+      <div class="flex-1 space-y-2">
+        <div class="h-4 bg-slate-200 rounded w-1/4"></div>
+        <div class="h-3 bg-slate-100 rounded w-1/3"></div>
+      </div>
+      <div class="w-20 h-6 bg-slate-100 rounded-full"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ EMPTY STATE ═══════════════ -->
+  <div *ngIf="!loading() && users().length === 0"
+    class="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-16 text-center">
+    <div class="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+      </svg>
+    </div>
+    <h3 class="text-lg font-semibold text-slate-700 mb-1">Aucune réponse</h3>
+    <p class="text-sm text-slate-400">Aucun utilisateur n'a encore complété le questionnaire</p>
+  </div>
+
+  <!-- ═══════════════ USER TABLE ═══════════════ -->
+  <div *ngIf="!loading() && users().length > 0"
+    class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+
+    <!-- Table header -->
+    <div class="grid grid-cols-12 gap-4 px-5 py-3 bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+      <div class="col-span-5">Utilisateur</div>
+      <div class="col-span-3 text-center">Options choisies</div>
+      <div class="col-span-2 text-center">Étapes</div>
+      <div class="col-span-2 text-right">Action</div>
+    </div>
+
+    <!-- Rows -->
+    <div *ngFor="let user of filtered(); let last = last"
+      class="grid grid-cols-12 gap-4 px-5 py-4 items-center transition-colors hover:bg-slate-50/80 cursor-pointer"
+      [class.border-b]="!last"
+      [class.border-slate-100]="!last"
+      (click)="openUser(user)">
+
+      <!-- Avatar + userId -->
+      <div class="col-span-5 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+          [ngClass]="avatarColor(user.userId)">
+          {{ initials(user.userId) }}
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-slate-800 truncate font-mono">{{ user.userId }}</p>
+          <p class="text-xs text-slate-400">{{ formatDate(user.submittedAt) }}</p>
+        </div>
+      </div>
+
+      <!-- Total options -->
+      <div class="col-span-3 text-center">
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-violet-100 text-violet-700">
+          {{ user.totalAnswers }} options
+        </span>
+      </div>
+
+      <!-- Steps covered -->
+      <div class="col-span-2 text-center">
+        <span class="text-sm font-semibold text-slate-700">
+          {{ (user.answers | keyvalue).length }}
+        </span>
+        <span class="text-xs text-slate-400"> / {{ steps().length }}</span>
+      </div>
+
+      <!-- View button -->
+      <div class="col-span-2 flex justify-end">
+        <button class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-violet-600 hover:text-white
+                       text-slate-600 text-xs font-semibold rounded-lg transition-all">
+          Voir
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- No search results -->
+    <div *ngIf="filtered().length === 0 && search()"
+      class="py-10 text-center text-sm text-slate-400">
+      Aucun utilisateur trouvé pour "{{ search() }}"
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SLIDE-OVER PANEL — User detail
+══════════════════════════════════════════════ -->
+<div *ngIf="selected()" class="fixed inset-0 z-50 flex">
+
+  <!-- Backdrop -->
+  <div class="flex-1 bg-black/40 backdrop-blur-sm" (click)="closePanel()"></div>
+
+  <!-- Panel -->
+  <div class="w-full max-w-xl bg-white shadow-2xl flex flex-col h-full overflow-hidden">
+
+    <!-- Panel header -->
+    <div class="flex items-center gap-4 px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-violet-600 to-pink-500">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 ring-2 ring-white/40"
+        [ngClass]="avatarColor(selected()!.userId)">
+        {{ initials(selected()!.userId) }}
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-white font-bold text-sm font-mono truncate">{{ selected()!.userId }}</p>
+        <p class="text-white/70 text-xs">{{ formatDate(selected()!.submittedAt) }}</p>
+      </div>
+      <button (click)="closePanel()"
+        class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Summary badges -->
+    <div class="flex gap-3 px-6 py-3 bg-slate-50 border-b border-slate-100">
+      <span class="px-3 py-1 bg-violet-100 text-violet-700 text-xs font-semibold rounded-full">
+        {{ selected()!.totalAnswers }} options choisies
+      </span>
+      <span class="px-3 py-1 bg-slate-200 text-slate-600 text-xs font-semibold rounded-full">
+        {{ (selected()!.answers | keyvalue).length }} / {{ steps().length }} étapes
+      </span>
+    </div>
+
+    <!-- Steps + options scroll -->
+    <div class="flex-1 overflow-y-auto px-6 py-5 space-y-6">
+
+      <!-- For each step -->
+      <div *ngFor="let step of steps(); let i = index">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-6 h-6 rounded-lg text-white text-xs font-bold flex items-center justify-center flex-shrink-0"
+            [class.bg-blue-500]="i % 6 === 0"
+            [class.bg-violet-500]="i % 6 === 1"
+            [class.bg-emerald-500]="i % 6 === 2"
+            [class.bg-amber-500]="i % 6 === 3"
+            [class.bg-rose-500]="i % 6 === 4"
+            [class.bg-cyan-500]="i % 6 === 5">
+            {{ i + 1 }}
+          </span>
+          <h3 class="text-sm font-semibold text-slate-700">{{ step.title }}</h3>
+          <span *ngIf="(selected()!.answers[step.id]?.length ?? 0) === 0"
+            class="ml-auto text-xs text-slate-400 italic">Non répondu</span>
+        </div>
+
+        <!-- Options chosen for this step -->
+        <div *ngIf="(selected()!.answers[step.id]?.length ?? 0) > 0"
+          class="flex flex-wrap gap-2 ml-8">
+          <div *ngFor="let opt of stepOptions(step.id, selected()!)"
+            class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-xl shadow-sm">
+            <span *ngIf="opt.icon" class="text-xl leading-none">{{ opt.icon }}</span>
+            <div>
+              <p class="text-xs font-semibold text-slate-700 leading-tight">{{ opt.title }}</p>
+              <p *ngIf="opt.subtitle" class="text-[10px] text-slate-400 leading-tight">{{ opt.subtitle }}</p>
+            </div>
+          </div>
+
+          <!-- Fallback: show raw option IDs if not found in optionMap -->
+          <ng-container *ngIf="stepOptions(step.id, selected()!).length === 0">
+            <span *ngFor="let id of selected()!.answers[step.id]"
+              class="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-mono rounded-lg">
+              {{ id }}
+            </span>
+          </ng-container>
+        </div>
+
+        <!-- Not answered -->
+        <div *ngIf="(selected()!.answers[step.id]?.length ?? 0) === 0"
+          class="ml-8 h-px bg-slate-100"></div>
+      </div>
+
+    </div>
+  </div>
+</div>

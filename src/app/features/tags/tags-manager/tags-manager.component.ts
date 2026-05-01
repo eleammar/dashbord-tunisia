@@ -54,8 +54,11 @@ export class TagsManagerComponent implements OnInit {
   readonly entityTypes = ENTITY_TYPES;
 
   selectedEntityType = signal<EntityType>('city');
-  entityId = signal<number | null>(null);
+  entityId = signal<number | string | null>(null);
   entityIdInput = signal('');
+
+  entityList = signal<{ id: number | string; label: string }[]>([]);
+  entityListLoading = signal(false);
 
   assignLoading = signal(false);
   assignSaving = signal(false);
@@ -245,6 +248,8 @@ export class TagsManagerComponent implements OnInit {
   switchToAssign(): void {
     this.activeTab.set('assign');
     this.resetAssignPanel();
+    this.entityList.set([]);
+    this.loadEntityList(this.selectedEntityType());
   }
 
   switchToManage(): void {
@@ -264,14 +269,32 @@ export class TagsManagerComponent implements OnInit {
   onEntityTypeChange(type: string): void {
     this.selectedEntityType.set(type as EntityType);
     this.resetAssignPanel();
+    this.entityList.set([]);
+    this.loadEntityList(type as EntityType);
+  }
+
+  loadEntityList(type: EntityType): void {
+    this.entityListLoading.set(true);
+    this.tagSvc.getEntityList(type).subscribe({
+      next: list => {
+        this.entityList.set(list);
+        this.entityListLoading.set(false);
+      },
+      error: () => this.entityListLoading.set(false),
+    });
   }
 
   loadEntityTags(): void {
-    const id = parseInt(String(this.entityIdInput() ?? ''), 10);
-    if (isNaN(id) || id <= 0) {
-      this.assignError.set('Please enter a valid numeric ID.');
+    const raw = (this.entityIdInput() ?? '').trim();
+    if (!raw) {
+      this.assignError.set('Veuillez sélectionner une entité.');
       return;
     }
+
+    const stringIdTypes: EntityType[] = ['city', 'option'];
+    const id: number | string = stringIdTypes.includes(this.selectedEntityType())
+      ? raw
+      : parseInt(raw, 10);
 
     this.entityId.set(id);
     this.assignLoading.set(true);
