@@ -242,6 +242,14 @@ export const APP_ROUTES: Routes = [
             m => m.DeligationsComponent
           ),
       },
+      {
+        path: 'guide',
+        data: { title: 'Guide Editor', icon: '🗺️', breadcrumb: 'Guide' },
+        loadComponent: () =>
+          import('./features/guide/guide.component').then(
+            m => m.GuideComponent
+          ),
+      },
     ],
   },
 ];
